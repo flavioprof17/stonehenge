@@ -1,0 +1,2261 @@
+<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>html,body{margin:0}</style>
+<title>Stonehenge 2500 a.C.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,500;0,700;1,500&family=Alegreya+Sans:wght@400;500;700&display=swap">
+<style>
+/* Layout: scena 3D a tutto schermo; sopra, un cartiglio (titolo), un pannello-guida a destra e una barra delle tappe in basso. */
+:root {
+  --ground: #f1ece1;      /* gesso */
+  --panel: rgba(241, 236, 225, 0.93);
+  --ink: #23201a;         /* carbone */
+  --muted: #6a6253;
+  --line: rgba(35, 32, 26, 0.16);
+  --ochre: #9a5b17;       /* ocra */
+  --ochre-soft: rgba(154, 91, 23, 0.12);
+  --lichen: #5f6f31;      /* lichene */
+  --chip: rgba(241, 236, 225, 0.9);
+  --shadow: 0 10px 30px rgba(20, 16, 10, 0.25);
+  --f-display: "Alegreya", Georgia, "Times New Roman", serif;
+  --f-body: "Alegreya Sans", "Gill Sans", "Trebuchet MS", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #1b1915; --panel: rgba(27, 25, 21, 0.92); --ink: #ece5d6; --muted: #a9a08d; --line: rgba(236, 229, 214, 0.16);
+    --ochre: #e2a95a; --ochre-soft: rgba(226, 169, 90, 0.14); --lichen: #a7b56d; --chip: rgba(27, 25, 21, 0.88); --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #1b1915; --panel: rgba(27, 25, 21, 0.92); --ink: #ece5d6; --muted: #a9a08d; --line: rgba(236, 229, 214, 0.16);
+  --ochre: #e2a95a; --ochre-soft: rgba(226, 169, 90, 0.14); --lichen: #a7b56d; --chip: rgba(27, 25, 21, 0.88); --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+[hidden] { display: none !important; }
+body { background: var(--ground); color: var(--ink); font-family: var(--f-body); font-size: 16px; overflow: hidden; }
+#scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; outline: none; background: #c9d6e2; }
+button, select, input { font: inherit; color: inherit; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--ochre); outline-offset: 2px; }
+
+.card { background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border-radius: 6px; }
+
+#title { position: fixed; left: 16px; top: calc(16px + env(safe-area-inset-top, 0px)); padding: 12px 16px 12px; max-width: min(340px, calc(100% - 32px)); }
+.eyebrow { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+#title h1 { margin: 2px 0 0; font-family: var(--f-display); font-weight: 700; font-size: 1.75rem; line-height: 1.05; text-wrap: balance; }
+#title h1 em { font-style: italic; font-weight: 500; color: var(--ochre); }
+
+#info { position: fixed; right: 16px; top: calc(16px + env(safe-area-inset-top, 0px)); width: 380px; max-height: calc(100% - 200px); overflow: auto; padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 12px; }
+#info header { display: flex; align-items: baseline; gap: 10px; }
+#info .num { font-family: var(--f-display); font-size: 2.2rem; line-height: 0.9; color: var(--ochre); font-variant-numeric: tabular-nums; }
+#info h2 { margin: 0; font-family: var(--f-display); font-size: 1.45rem; line-height: 1.1; text-wrap: balance; flex: 1; }
+#collapse { border: 1px solid var(--line); background: transparent; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.85rem; color: var(--muted); }
+#info .lead { margin: 0; font-size: 1.04rem; line-height: 1.45; }
+#phase { border-left: 3px solid var(--lichen); background: var(--ochre-soft); padding: 8px 10px; font-size: 0.95rem; line-height: 1.35; border-radius: 0 4px 4px 0; }
+#phase b { display: block; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--lichen); font-weight: 700; margin-bottom: 2px; }
+#info ol, #info ul { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 6px; line-height: 1.4; font-size: 0.97rem; }
+#info ol li::marker { font-family: var(--f-display); font-weight: 700; color: var(--ochre); }
+#info ul li::marker { color: var(--ochre); }
+.fact { font-size: 0.95rem; line-height: 1.4; padding-top: 10px; border-top: 1px dashed var(--line); }
+.fact b { font-family: var(--f-display); font-style: italic; font-weight: 500; color: var(--ochre); font-size: 1.05rem; }
+.nums { display: grid; grid-template-columns: 1fr auto; gap: 4px 14px; font-size: 0.92rem; margin: 0; }
+.nums dt { color: var(--muted); }
+.nums dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 700; text-align: right; }
+#info.collapsed > :not(header) { display: none; }
+
+#dock { position: fixed; left: 16px; right: 16px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+#dock > * { pointer-events: auto; }
+#stops { display: flex; gap: 6px; overflow-x: auto; max-width: 100%; padding: 6px; scrollbar-width: thin; }
+.stop { flex: 0 0 auto; display: flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: var(--chip); border-radius: 999px; padding: 6px 13px 6px 7px; cursor: pointer; white-space: nowrap; font-size: 0.93rem; }
+.stop .n { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--ochre-soft); color: var(--ochre); font-family: var(--f-display); font-weight: 700; font-size: 0.9rem; }
+.stop[aria-current="true"] { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+.stop[aria-current="true"] .n { background: var(--ochre); color: var(--ground); }
+#tools { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; justify-content: center; padding: 6px 10px; font-size: 0.9rem; }
+.tog { border: 1px solid var(--line); background: transparent; border-radius: 4px; padding: 5px 10px; cursor: pointer; }
+.tog[aria-pressed="true"] { background: var(--lichen); color: var(--ground); border-color: var(--lichen); }
+.sunbox { display: flex; align-items: center; gap: 8px; }
+.sunbox label { color: var(--muted); }
+#sun { width: 150px; accent-color: var(--ochre); }
+#sunLabel { min-width: 92px; font-variant-numeric: tabular-nums; }
+#speed { border: 1px solid var(--line); background: transparent; border-radius: 4px; padding: 4px 6px; }
+
+#walkhelp { position: fixed; left: 16px; bottom: calc(150px + env(safe-area-inset-bottom, 0px)); padding: 10px 12px; font-size: 0.88rem; line-height: 1.4; max-width: 260px; }
+#pad { display: none; grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(2, 46px); gap: 6px; margin-top: 8px; }
+#pad button { border: 1px solid var(--line); background: var(--chip); border-radius: 6px; font-size: 1.1rem; touch-action: none; user-select: none; -webkit-user-select: none; }
+.touchtxt { display: none; }
+@media (pointer: coarse) { #pad { display: grid; } .keys { display: none; } .touchtxt { display: inline; } }
+
+#loader { position: fixed; inset: 0; display: grid; place-items: center; background: var(--ground); z-index: 5; text-align: center; padding: 0 16px; }
+#loader p { font-family: var(--f-display); font-size: 1.3rem; margin: 0; }
+#loader small { color: var(--muted); }
+
+@media (max-width: 760px) {
+  #title { padding: 8px 12px; }
+  #title h1 { font-size: 1.3rem; }
+  #info { left: 16px; right: 16px; width: auto; top: auto; bottom: calc(var(--dock-h, 150px) + 22px + env(safe-area-inset-bottom, 0px)); max-height: 42%; padding: 12px 14px 14px; gap: 10px; }
+  #info .num { font-size: 1.7rem; }
+  #info h2 { font-size: 1.2rem; }
+  #sun { width: 110px; }
+  #walkhelp { bottom: auto; top: calc(86px + env(safe-area-inset-top, 0px)); }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<canvas id="scene" tabindex="0" aria-label="Scena 3D del cantiere di Stonehenge"></canvas>
+
+<div id="loader"><div><p>Si prepara il cantiere…</p><small>Piana di Salisbury, circa 2500 a.C.</small></div></div>
+
+<div id="title" class="card">
+  <div class="eyebrow">Piana di Salisbury · Neolitico finale</div>
+  <h1>Stonehenge, <em>2500 a.C.</em></h1>
+</div>
+
+<aside id="info" class="card" aria-live="polite">
+  <header><span class="num" id="infoNum">·</span><h2 id="infoTitle">Panoramica</h2><button id="collapse" type="button" aria-expanded="true">Riduci</button></header>
+  <p class="lead" id="infoLead"></p>
+  <div id="phase" hidden><b>Che cosa succede adesso</b><span id="phaseText"></span></div>
+  <div id="infoList"></div>
+  <dl class="nums" id="infoNums"></dl>
+  <div class="fact" id="infoFact"></div>
+</aside>
+
+<div id="walkhelp" class="card" hidden>
+  <span class="keys"><b>W A S D</b> o frecce per camminare · trascina per guardarti intorno · <b>Maiusc</b> per correre</span>
+  <span class="touchtxt">Trascina per guardarti intorno.</span>
+  <div id="pad" aria-label="Comandi di movimento">
+    <span></span><button type="button" data-f="1" aria-label="Avanti">▲</button><span></span>
+    <button type="button" data-r="-1" aria-label="Gira a sinistra">◀</button><button type="button" data-f="-1" aria-label="Indietro">▼</button><button type="button" data-r="1" aria-label="Gira a destra">▶</button>
+  </div>
+</div>
+
+<div id="dock">
+  <nav id="stops" class="card" aria-label="Tappe della visita"></nav>
+  <div id="tools" class="card">
+    <button class="tog" id="walkBtn" type="button" aria-pressed="false">Esplora a piedi</button>
+    <button class="tog" id="doneBtn" type="button" aria-pressed="false">Monumento finito</button>
+    <div class="sunbox"><label for="sun">Sole</label><input id="sun" type="range" min="0" max="1000" value="300"><span id="sunLabel">mattina</span></div>
+    <button class="tog" id="qualityBtn" type="button" aria-pressed="true" title="Passa alla grafica leggera se il computer è lento">Grafica: alta</button>
+    <button class="tog" id="pauseBtn" type="button" aria-pressed="false">Pausa</button>
+    <select id="speed" aria-label="Velocità delle animazioni"><option value="0.5">0,5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select>
+  </div>
+</div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script>
+/* =====================================================================
+   STONEHENGE 2500 a.C. — ambiente 3D didattico
+   Parte 1: utilità, rumore, renderer, cielo, terreno
+   ===================================================================== */
+function buildStonehenge(THREE, OrbitControls, canvas, opts) {
+  opts = opts || {};
+  const D2R = Math.PI / 180;
+  const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
+  const isMobile = /Android|iPhone|iPad|Mobi/i.test(navigator.userAgent) || Math.min(window.innerWidth, window.innerHeight) < 600;
+
+  // ---------- PRNG e rumore ----------
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const rand = mulberry32(2500);
+  const rr = (a, b) => a + (b - a) * rand();
+  function hash3(x, y, z) {
+    let h = (Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263) + Math.imul(z | 0, 1274126177)) | 0;
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    h ^= h >>> 16;
+    return (h >>> 0) / 4294967296;
+  }
+  const sm = t => t * t * (3 - 2 * t);
+  function noise3(x, y, z) {
+    const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
+    const xf = sm(x - xi), yf = sm(y - yi), zf = sm(z - zi);
+    const L = (a, b, t) => a + (b - a) * t;
+    const c000 = hash3(xi, yi, zi), c100 = hash3(xi + 1, yi, zi), c010 = hash3(xi, yi + 1, zi), c110 = hash3(xi + 1, yi + 1, zi);
+    const c001 = hash3(xi, yi, zi + 1), c101 = hash3(xi + 1, yi, zi + 1), c011 = hash3(xi, yi + 1, zi + 1), c111 = hash3(xi + 1, yi + 1, zi + 1);
+    return L(L(L(c000, c100, xf), L(c010, c110, xf), yf), L(L(c001, c101, xf), L(c011, c111, xf), yf), zf) * 2 - 1;
+  }
+  function fbm3(x, y, z, oct) {
+    let s = 0, a = 0.5, f = 1;
+    for (let i = 0; i < (oct || 4); i++) { s += a * noise3(x * f, y * f, z * f); f *= 2.03; a *= 0.5; }
+    return s;
+  }
+  const fbm2 = (x, z, o) => fbm3(x, 7.31, z, o);
+  const smoothstep = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const easeIO = t => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+  const bump = (r, c, w) => (Math.abs(r - c) < w ? 0.5 + 0.5 * Math.cos(Math.PI * (r - c) / w) : 0);
+  function angDiff(a, b) { let d = a - b; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI; return d; }
+
+  // ---------- geometria del monumento ----------
+  // Mondo: +X = est, -Z = nord. Angolo phi nel piano XZ: (cos phi, sin phi).
+  const AXIS_AZ = 50 * D2R;                       // azimut dell'alba al solstizio d'estate (circa 50° da nord)
+  const AX = Math.sin(AXIS_AZ), AZ = -Math.cos(AXIS_AZ);
+  const AXIS_PHI = Math.atan2(AZ, AX);            // ~ -40°
+  const PX = -AZ, PZ = AX;                        // direzione laterale (perpendicolare all'asse)
+  const R_SARSEN = 16.4;
+  const polar = (r, phi) => V3(r * Math.cos(phi), 0, r * Math.sin(phi));
+  const yawFor = phi => Math.PI / 2 - phi;        // +Z locale verso l'esterno, radiale
+
+  // Buca del piedritto (stazione 3) scavata nel terreno
+  const RAISE_PHI = AXIS_PHI + 12.5 * 12 * D2R;
+  const raiseFrame = { o: polar(R_SARSEN, RAISE_PHI), yaw: yawFor(RAISE_PHI) };
+  function toLocal(frame, x, z) {
+    const dx = x - frame.o.x, dz = z - frame.o.z, c = Math.cos(frame.yaw), s = Math.sin(frame.yaw);
+    return [dx * c - dz * s, dx * s + dz * c];
+  }
+
+  function heightAt(x, z) {
+    const r = Math.hypot(x, z);
+    let h = fbm2(x * 0.0035, z * 0.0035, 4) * 9 + fbm2(x * 0.02, z * 0.02, 3) * 0.7;
+    const flat = smoothstep(55, 160, r);
+    h = h * flat + fbm2(x * 0.06, z * 0.06, 2) * 0.12 * (1 - flat);
+    // fossato e terrapieno (henge), con ingresso a nord-est
+    const ang = Math.atan2(z, x);
+    const gap = smoothstep(0.09, 0.15, Math.abs(angDiff(ang, AXIS_PHI)));
+    const seg = 0.75 + 0.25 * noise3(ang * 9, 0, 3.3); // fossato irregolare, scavato a segmenti
+    h += gap * (1.1 * bump(r, 48.6, 2.8) - 1.7 * seg * bump(r, 54.6, 2.5) + 0.35 * bump(r, 59, 1.6));
+    // l'Avenue: due argini paralleli verso nord-est
+    const s = x * AX + z * AZ, l = x * PX + z * PZ;
+    const av = smoothstep(54, 62, s) * (1 - smoothstep(700, 760, s));
+    if (av > 0) {
+      const al = Math.abs(l);
+      // appiana il fondo dell'Avenue (dove passa la slitta)
+      h = lerp(h, h * 0.35, av * (1 - smoothstep(12, 22, al)));
+      h += av * (0.55 * bump(al, 11, 1.6) - 0.6 * bump(al, 13.4, 1.2));
+    }
+    // buca del piedritto in costruzione
+    const [lx, lz] = toLocal(raiseFrame, x, z);
+    if (Math.abs(lx) < 2.0 && lz > -1.2 && lz < 4.2) {
+      const wx = 1 - smoothstep(1.35, 1.9, Math.abs(lx));
+      let d = 0;
+      if (lz < -0.75) d = smoothstep(-1.15, -0.75, lz);      // parete verticale (foderata di pali)
+      else if (lz < 0.5) d = 1;                              // fondo
+      else d = 1 - smoothstep(0.5, 3.9, lz);                 // scivolo
+      h = lerp(h, -1.6, clamp(d, 0, 1) * wx);
+    }
+    return h;
+  }
+
+  // ---------- renderer ----------
+  let VW = opts.width || canvas.clientWidth || window.innerWidth;
+  let VH = opts.height || canvas.clientHeight || window.innerHeight;
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2));
+  renderer.setSize(VW, VH, false);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.95;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, VW / VH, 0.1, 4000);
+  camera.position.set(70, 38, 70);
+
+  // ---------- texture procedurali ----------
+  function canvasTex(size, draw, repeat) {
+    const c = document.createElement('canvas'); c.width = c.height = size;
+    const g = c.getContext('2d'); draw(g, size);
+    const t = new THREE.CanvasTexture(c);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = 8;
+    if (repeat) t.repeat.set(repeat, repeat);
+    return t;
+  }
+  function speckle(g, n, s, alpha, cols, rmin, rmax) {
+    for (let i = 0; i < n; i++) {
+      g.fillStyle = cols[(rand() * cols.length) | 0];
+      g.globalAlpha = alpha * rand();
+      const r = rr(rmin, rmax);
+      g.beginPath(); g.arc(rand() * s, rand() * s, r, 0, Math.PI * 2); g.fill();
+    }
+    g.globalAlpha = 1;
+  }
+  const grassTex = canvasTex(512, (g, s) => {
+    g.fillStyle = '#d9dccb'; g.fillRect(0, 0, s, s);
+    speckle(g, 9000, s, 0.55, ['#a8b08a', '#c9cfae', '#8f9a6c', '#eef0dd', '#b7a983'], 0.6, 2.2);
+    g.strokeStyle = '#7f8a5a';
+    for (let i = 0; i < 5000; i++) {
+      g.globalAlpha = 0.25 * rand(); const x = rand() * s, y = rand() * s;
+      g.beginPath(); g.moveTo(x, y); g.lineTo(x + rr(-2, 2), y - rr(3, 8)); g.stroke();
+    }
+    g.globalAlpha = 1;
+  });
+  const stoneTex = canvasTex(512, (g, s) => {
+    g.fillStyle = '#d8d4cc'; g.fillRect(0, 0, s, s);
+    speckle(g, 16000, s, 0.35, ['#b8b1a4', '#efece5', '#9d968a', '#c7bfae'], 0.4, 1.6);
+    speckle(g, 900, s, 0.25, ['#8a8478', '#a39c8c'], 2, 9);
+    speckle(g, 120, s, 0.12, ['#6f6a60'], 6, 18);
+  });
+  const woodTex = canvasTex(256, (g, s) => {
+    g.fillStyle = '#c9b494'; g.fillRect(0, 0, s, s);
+    for (let i = 0; i < 160; i++) {
+      g.strokeStyle = rand() < 0.5 ? '#8c7656' : '#e0cfb2'; g.globalAlpha = 0.35 * rand(); g.lineWidth = rr(0.5, 2.5);
+      const y = rand() * s; g.beginPath(); g.moveTo(0, y);
+      for (let x = 0; x <= s; x += 16) g.lineTo(x, y + Math.sin(x * 0.05 + i) * 2);
+      g.stroke();
+    }
+    g.globalAlpha = 1;
+  });
+  const soilTex = canvasTex(256, (g, s) => {
+    g.fillStyle = '#d6d0c2'; g.fillRect(0, 0, s, s);
+    speckle(g, 5000, s, 0.5, ['#f3f0e8', '#a99f8c', '#c2b8a2', '#8d8370'], 0.5, 2.5);
+  });
+
+  // ---------- cielo ----------
+  const skyUniforms = {
+    sunDir: { value: V3(0, 1, 0) },
+    topColor: { value: new THREE.Color(0x3d6fb0) },
+    horizonColor: { value: new THREE.Color(0xc9d6e2) },
+    sunColor: { value: new THREE.Color(0xfff1d0) },
+  };
+  const sky = new THREE.Mesh(
+    new THREE.SphereGeometry(3000, 32, 16),
+    new THREE.ShaderMaterial({
+      side: THREE.BackSide, depthWrite: false, fog: false, uniforms: skyUniforms,
+      vertexShader: 'varying vec3 vDir; void main(){ vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); gl_Position.z = gl_Position.w; }',
+      fragmentShader: `uniform vec3 sunDir; uniform vec3 topColor; uniform vec3 horizonColor; uniform vec3 sunColor; varying vec3 vDir;
+        void main(){ float h = clamp(vDir.y, -0.2, 1.0);
+          vec3 col = mix(horizonColor, topColor, pow(max(h,0.0), 0.55));
+          col = mix(col, horizonColor*0.75, smoothstep(0.0,-0.2,h));
+          float sd = max(dot(normalize(vDir), normalize(sunDir)), 0.0);
+          col += sunColor * (pow(sd, 900.0)*6.0 + pow(sd, 12.0)*0.28 + pow(sd,3.0)*0.08);
+          gl_FragColor = vec4(col, 1.0);
+          #include <tonemapping_fragment>
+          #include <colorspace_fragment>
+        }`,
+    })
+  );
+  sky.renderOrder = -1;
+  scene.add(sky);
+  scene.fog = new THREE.Fog(0xc9d6e2, 180, 1500);
+
+  // mappe di rilievo (normal map) ricavate dalle texture: pori della pietra, zolle, fili d'erba
+  function normalMapFrom(tex, strength) {
+    const src = tex.image, w = src.width, h = src.height;
+    const d = src.getContext('2d').getImageData(0, 0, w, h).data;
+    const Hm = new Float32Array(w * h);
+    for (let i = 0; i < w * h; i++) Hm[i] = (d[i * 4] * 0.3 + d[i * 4 + 1] * 0.59 + d[i * 4 + 2] * 0.11) / 255;
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const g = c.getContext('2d'), out = g.createImageData(w, h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const l = Hm[y * w + ((x - 1 + w) % w)], r = Hm[y * w + ((x + 1) % w)], u = Hm[((y - 1 + h) % h) * w + x], dn = Hm[((y + 1) % h) * w + x];
+      const nx = (l - r) * strength, ny = (dn - u) * strength, len = Math.hypot(nx, ny, 1), k = (y * w + x) * 4;
+      out.data[k] = (nx / len * 0.5 + 0.5) * 255; out.data[k + 1] = (ny / len * 0.5 + 0.5) * 255; out.data[k + 2] = (1 / len * 0.5 + 0.5) * 255; out.data[k + 3] = 255;
+    }
+    g.putImageData(out, 0, 0);
+    const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
+    return t;
+  }
+  const stoneN = normalMapFrom(stoneTex, 7), grassN = normalMapFrom(grassTex, 3.5), soilN = normalMapFrom(soilTex, 5), woodN = normalMapFrom(woodTex, 4);
+
+  // cielo fisico (modello di Preetham) e luce ambientale ricavata dal cielo stesso
+  const AD = opts.addons || {};
+  let physSky = null, envSky = null, pmrem = null, envScene = null, envRT = null;
+  if (AD.Sky) {
+    physSky = new AD.Sky(); physSky.scale.setScalar(3400);
+    physSky.material.depthWrite = false; physSky.renderOrder = -1;
+    scene.remove(sky); scene.add(physSky);
+    pmrem = new THREE.PMREMGenerator(renderer);
+    envScene = new THREE.Scene();
+    envSky = new AD.Sky(); envSky.scale.setScalar(150); envScene.add(envSky);
+    const groundHemi = new THREE.Mesh(new THREE.SphereGeometry(100, 32, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x3c4a24, side: THREE.BackSide }));
+    groundHemi.position.y = -0.3; envScene.add(groundHemi);
+    renderer.toneMappingExposure = 0.6;
+  }
+  const skyObj = physSky || sky;
+  function regenEnv() {
+    if (!pmrem) return;
+    const old = envRT;
+    envRT = pmrem.fromScene(envScene, 0, 0.1, 500);
+    scene.environment = envRT.texture;
+    if (old) old.dispose();
+  }
+
+  // nuvole: billboard con texture morbide
+  const cloudTex = canvasTex(256, (g, s) => {
+    g.clearRect(0, 0, s, s);
+    for (let i = 0; i < 26; i++) {
+      const x = rr(0.25, 0.75) * s, y = rr(0.42, 0.62) * s, r = rr(0.08, 0.2) * s;
+      const gr = g.createRadialGradient(x, y, 0, x, y, r);
+      gr.addColorStop(0, 'rgba(255,255,255,0.55)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+    }
+  });
+  cloudTex.wrapS = cloudTex.wrapT = THREE.ClampToEdgeWrapping;
+  const clouds = new THREE.Group();
+  for (let i = 0; i < 26; i++) {
+    const m = new THREE.SpriteMaterial({ map: cloudTex, transparent: true, depthWrite: false, fog: false, opacity: rr(0.6, 0.95) });
+    const sp = new THREE.Sprite(m);
+    const a = rand() * Math.PI * 2, d = rr(300, 1400);
+    sp.position.set(Math.cos(a) * d, rr(220, 420), Math.sin(a) * d);
+    const sc = rr(260, 520); sp.scale.set(sc, sc * 0.45, 1);
+    clouds.add(sp);
+  }
+  scene.add(clouds);
+
+  // ---------- luci ----------
+  const hemi = new THREE.HemisphereLight(0xc4d8f0, 0x5c5a3c, 1.1);
+  scene.add(hemi);
+  const sun = new THREE.DirectionalLight(0xfff0d8, 2.8);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(isMobile ? 2048 : 4096, isMobile ? 2048 : 4096);
+  const SH = 55;
+  Object.assign(sun.shadow.camera, { left: -SH, right: SH, top: SH, bottom: -SH, near: 1, far: 500 });
+  sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04;
+  scene.add(sun); scene.add(sun.target);
+
+  // ---------- terreno (griglia polare: fitta al centro, rada all'orizzonte) ----------
+  function buildTerrain() {
+    const radii = [0];
+    while (radii[radii.length - 1] < 1500) { const r = radii[radii.length - 1]; radii.push(r + Math.max(0.45, r * 0.028)); }
+    const NA = isMobile ? 384 : 560, NR = radii.length;
+    const pos = new Float32Array(NR * NA * 3), col = new Float32Array(NR * NA * 3), uv = new Float32Array(NR * NA * 2);
+    const cGrassA = new THREE.Color(0x5f7434), cGrassB = new THREE.Color(0x7d8a3f), cDry = new THREE.Color(0x9a9455);
+    const cChalk = new THREE.Color(0xe4ddcc), cEarth = new THREE.Color(0x8a7b5e), cTrack = new THREE.Color(0x7c6d52);
+    const c = new THREE.Color();
+    let k = 0;
+    for (let i = 0; i < NR; i++) {
+      for (let j = 0; j < NA; j++) {
+        const a = (j / NA) * Math.PI * 2, r = radii[i];
+        const x = Math.cos(a) * r, z = Math.sin(a) * r, y = heightAt(x, z);
+        pos[k * 3] = x; pos[k * 3 + 1] = y; pos[k * 3 + 2] = z;
+        uv[k * 2] = x / 3.5; uv[k * 2 + 1] = z / 3.5;
+        // colore: prato con variazioni, gesso dove il terreno è scavato o ammucchiato
+        const n1 = fbm2(x * 0.03, z * 0.03, 3), n2 = fbm2(x * 0.25, z * 0.25, 2);
+        c.copy(cGrassA).lerp(cGrassB, clamp(0.5 + n1, 0, 1)).lerp(cDry, clamp(n2 * 0.8, 0, 0.5));
+        const dh = Math.abs(heightAt(x + 0.6, z) - y) + Math.abs(heightAt(x, z + 0.6) - y);
+        const ang = Math.atan2(z, x);
+        // cantiere: terra battuta e schegge di sarsen dentro e intorno al cerchio
+        const work = (1 - smoothstep(13, 31, r)) * clamp(0.55 + fbm2(x * 0.15, z * 0.15, 3) * 1.4, 0, 1);
+        c.lerp(cEarth, work * 0.75);
+        const chips = (1 - smoothstep(8, 34, r)) * smoothstep(0.25, 0.6, n2 + 0.3);
+        c.lerp(cChalk, chips * 0.35);
+        // gesso sul fossato e sul terrapieno (lati ripidi)
+        c.lerp(cChalk, clamp(dh * 0.9, 0, 0.5) * (r > 40 ? 1 : 0.0));
+        if (y < -0.4 && r < 25) c.lerp(cChalk, 0.95); // buca appena scavata
+        // pista della slitta lungo l'Avenue
+        const s = x * AX + z * AZ, l = x * PX + z * PZ;
+        if (s > 50 && s < 270) c.lerp(cTrack, (1 - smoothstep(1.5, 4.5, Math.abs(l - 5.5))) * 0.8);
+        // rampa e catasta: terreno calpestato
+        const sw = polar(18, AXIS_PHI + Math.PI);
+        c.lerp(cEarth, (1 - smoothstep(4, 9, Math.hypot(x - sw.x, z - sw.z))) * 0.5 * (r > 16 ? 1 : 0));
+        col[k * 3] = c.r; col[k * 3 + 1] = c.g; col[k * 3 + 2] = c.b;
+        k++;
+        void ang;
+      }
+    }
+    const idx = [];
+    for (let i = 0; i < NR - 1; i++) for (let j = 0; j < NA; j++) {
+      const a = i * NA + j, b = i * NA + ((j + 1) % NA), c2 = (i + 1) * NA + j, d = (i + 1) * NA + ((j + 1) % NA);
+      idx.push(a, b, c2, b, d, c2);
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+    geo.setIndex(idx);
+    geo.computeVertexNormals();
+    const mat = new THREE.MeshStandardMaterial({ vertexColors: true, map: grassTex, normalMap: grassN, normalScale: new THREE.Vector2(0.7, 0.7), roughness: 1, metalness: 0, envMapIntensity: 0.8 });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.receiveShadow = true;
+    return mesh;
+  }
+  const terrain = buildTerrain();
+  scene.add(terrain);
+
+  /* =====================================================================
+     Parte 2: pietre, monumento, vegetazione
+     ===================================================================== */
+  function smoothNormals(geo) {
+    geo.computeVertexNormals();
+    const p = geo.attributes.position, n = geo.attributes.normal, map = new Map();
+    for (let i = 0; i < p.count; i++) {
+      const key = Math.round(p.getX(i) * 1000) + '_' + Math.round(p.getY(i) * 1000) + '_' + Math.round(p.getZ(i) * 1000);
+      let e = map.get(key); if (!e) { e = { n: V3(0, 0, 0), ids: [] }; map.set(key, e); }
+      e.n.x += n.getX(i); e.n.y += n.getY(i); e.n.z += n.getZ(i); e.ids.push(i);
+    }
+    map.forEach(e => { e.n.normalize(); e.ids.forEach(i => n.setXYZ(i, e.n.x, e.n.y, e.n.z)); });
+    n.needsUpdate = true;
+  }
+
+  // Pietra irregolare: parallelepipedo arrotondato, deformato col rumore. Base a y = 0.
+  function makeStone(w, h, d, o) {
+    o = o || {};
+    const seed = o.seed != null ? o.seed : rand() * 1000;
+    const rad = o.round != null ? o.round : Math.min(w, h, d) * 0.22;
+    const rough = o.rough != null ? o.rough : 0.06;
+    const geo = new THREE.BoxGeometry(w, h, d, o.sx || 7, o.sy || Math.max(4, Math.round(h * 2.6)), o.sz || 4);
+    const p = geo.attributes.position;
+    const v = V3(0, 0, 0), q = V3(0, 0, 0), dir = V3(0, 0, 0);
+    const inner = V3(Math.max(0.01, w / 2 - rad), Math.max(0.01, h / 2 - rad), Math.max(0.01, d / 2 - rad));
+    const ninner = inner.clone().negate();
+    const base = new THREE.Color(o.color || 0xb9b2a3), cc = new THREE.Color();
+    const cols = new Float32Array(p.count * 3);
+    for (let i = 0; i < p.count; i++) {
+      v.fromBufferAttribute(p, i);
+      q.copy(v).clamp(ninner, inner);
+      dir.copy(v).sub(q);
+      if (dir.lengthSq() < 1e-8) dir.set(0, 1, 0);
+      dir.normalize();
+      q.addScaledVector(dir, rad);
+      const n = fbm3(q.x * 0.55 + seed, q.y * 0.55, q.z * 0.55 + seed * 0.3, 4) * rough + fbm3(q.x * 2.8 + seed, q.y * 2.8, q.z * 2.8, 2) * rough * 0.3;
+      q.addScaledVector(dir, n);
+      const ty = (q.y + h / 2) / h;
+      const tp = o.taper || 0;
+      q.x *= 1 - tp * ty; q.z *= 1 - tp * 0.5 * ty;
+      q.x += (o.lean || 0) * ty * ty;
+      q.y += h / 2;
+      if (o.bendR) {
+        const a = q.x / o.bendR, R = o.bendR;
+        const nx = (R + q.z) * Math.sin(a), nz = (R + q.z) * Math.cos(a) - R;
+        q.x = nx; q.z = nz;
+      }
+      p.setXYZ(i, q.x, q.y, q.z);
+      const cv = fbm3(q.x * 0.7 + seed, q.y * 0.7, q.z * 0.7, 3);
+      cc.copy(base).multiplyScalar(0.9 + cv * 0.35);
+      if (o.weathered) {
+        const lich = smoothstep(0.15, 0.45, fbm3(q.x * 1.3 - seed, q.y * 1.3, q.z * 1.3, 3));
+        cc.lerp(new THREE.Color(0x8d8a62), lich * 0.45);
+      }
+      cols[i * 3] = cc.r; cols[i * 3 + 1] = cc.g; cols[i * 3 + 2] = cc.b;
+    }
+    geo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+    smoothNormals(geo);
+    // UV pseudo-triplanari
+    const nrm = geo.attributes.normal, uv = geo.attributes.uv;
+    for (let i = 0; i < p.count; i++) {
+      const ax = Math.abs(nrm.getX(i)), ay = Math.abs(nrm.getY(i)), az = Math.abs(nrm.getZ(i));
+      const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+      if (ay > ax && ay > az) uv.setXY(i, x * 0.45, z * 0.45);
+      else if (ax > az) uv.setXY(i, z * 0.45, y * 0.45);
+      else uv.setXY(i, x * 0.45, y * 0.45);
+    }
+    geo.computeBoundingSphere();
+    return geo;
+  }
+
+  const sarsenMat = new THREE.MeshStandardMaterial({ map: stoneTex, normalMap: stoneN, normalScale: new THREE.Vector2(1.1, 1.1), vertexColors: true, roughness: 0.92, metalness: 0 });
+  const woodMat = new THREE.MeshStandardMaterial({ map: woodTex, normalMap: woodN, color: 0x9a8263, roughness: 0.85 });
+  const barkMat = new THREE.MeshStandardMaterial({ map: woodTex, normalMap: woodN, normalScale: new THREE.Vector2(1.6, 1.6), color: 0x6e5a42, roughness: 1 });
+  const chalkMat = new THREE.MeshStandardMaterial({ map: soilTex, normalMap: soilN, color: 0xe2dccd, roughness: 1 });
+  const ropeMat = new THREE.MeshStandardMaterial({ color: 0x8e7a55, roughness: 1 });
+
+  function mesh(geo, mat, shadow) {
+    const m = new THREE.Mesh(geo, mat);
+    if (shadow !== false) { m.castShadow = true; m.receiveShadow = true; }
+    return m;
+  }
+  function log(len, r, mat) { // tronco orientato lungo X, centrato
+    return mesh(new THREE.CylinderGeometry(r, r * 1.05, len, 9).rotateZ(Math.PI / 2), mat || barkMat);
+  }
+  const tenonGeo = new THREE.CylinderGeometry(0.16, 0.2, 0.22, 12).translate(0, 0.11, 0);
+
+  // ----- sarsen: piedritti -----
+  function makeUpright(i) {
+    const geo = makeStone(2.1, 4.4, 1.1, { seed: i * 7.31 + 3, taper: 0.07, rough: 0.07, lean: rr(-0.05, 0.05) });
+    const m = mesh(geo, sarsenMat);
+    [-0.52, 0.52].forEach(x => { const t = mesh(tenonGeo, sarsenMat); t.position.set(x, 4.38, 0); m.add(t); });
+    return m;
+  }
+  function makeCircleLintel(k) {
+    return mesh(makeStone(3.46, 0.8, 1.05, { seed: k * 3.17 + 11, bendR: R_SARSEN, round: 0.12, rough: 0.035, sy: 3, sx: 10 }), sarsenMat);
+  }
+  const monument = new THREE.Group(); scene.add(monument);
+  const futureGroup = new THREE.Group(); futureGroup.visible = false; scene.add(futureGroup);
+  const uprightPhi = i => AXIS_PHI + (i + 0.5) * 12 * D2R;
+  const lintelPhi = k => AXIS_PHI + k * 12 * D2R;
+  const missingUprights = new Set([13, 14, 15, 16]);
+  const placedLintels = new Set([22, 23, 24, 25, 26, 27, 28, 29, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 19]);
+  for (let i = 0; i < 30; i++) {
+    if (i === 12) continue; // in fase di innalzamento (stazione 3)
+    const phi = uprightPhi(i), m = makeUpright(i), p = polar(R_SARSEN, phi);
+    m.position.set(p.x, heightAt(p.x, p.z) - 0.3, p.z);
+    m.rotation.y = yawFor(phi);
+    (missingUprights.has(i) ? futureGroup : monument).add(m);
+  }
+  for (let k = 0; k < 30; k++) {
+    if (k === 11 || k === 21) continue; // sollevati con la catasta (stazione 4) e con il terrapieno (stazione 5)
+    const phi = lintelPhi(k), m = makeCircleLintel(k), p = polar(R_SARSEN, phi);
+    m.position.set(p.x, heightAt(p.x, p.z) + 4.1, p.z);
+    m.rotation.y = yawFor(phi);
+    (placedLintels.has(k) ? monument : futureGroup).add(m);
+  }
+
+  // ----- triliti (ferro di cavallo aperto verso nord-est) -----
+  const BACK_PHI = AXIS_PHI + Math.PI;
+  const trilithons = [
+    { off: 0, r: 6.7, h: 7.3, w: 2.3, great: true },
+    { off: 52, r: 8.7, h: 6.5, w: 2.2 }, { off: -52, r: 8.7, h: 6.5, w: 2.2 },
+    { off: 100, r: 9.9, h: 6.0, w: 2.1 }, { off: -100, r: 9.9, h: 6.0, w: 2.1 },
+  ];
+  trilithons.forEach((t, n) => {
+    const phi = BACK_PHI + t.off * D2R, p = polar(t.r, phi);
+    const g = new THREE.Group();
+    g.position.set(p.x, heightAt(p.x, p.z), p.z); g.rotation.y = yawFor(phi);
+    [-1, 1].forEach(sgn => {
+      const u = mesh(makeStone(t.w, t.h + 0.35, 1.3, { seed: n * 13 + sgn * 5, taper: 0.08, rough: 0.08 }), sarsenMat);
+      u.position.set(sgn * (t.w / 2 + 0.17), -0.35, 0);
+      const tn = mesh(tenonGeo, sarsenMat); tn.position.set(0, t.h + 0.33, 0); u.add(tn);
+      g.add(u);
+    });
+    if (!t.great) {
+      const l = mesh(makeStone(t.w * 2 + 0.75, 1.0, 1.15, { seed: n * 9 + 1, round: 0.15, rough: 0.04, sy: 3 }), sarsenMat);
+      l.position.set(0, t.h, 0); g.add(l);
+    }
+    t.group = g; t.phi = phi;
+    monument.add(g);
+  });
+
+  // ----- bluestones (dal Galles, più piccole e bluastre) -----
+  const blueMat = sarsenMat;
+  for (let i = 0; i < 60; i++) {
+    const phi = AXIS_PHI + (i + 0.5) * 6 * D2R;
+    const rel = (((phi / D2R) % 360) + 360) % 360; // angolo assoluto in gradi
+    const p = polar(11.7 + rr(-0.15, 0.15), phi);
+    const slab = rand() < 0.5;
+    const m = mesh(makeStone(slab ? rr(0.9, 1.25) : rr(0.6, 0.85), rr(1.9, 2.4), slab ? rr(0.4, 0.55) : rr(0.55, 0.75), { seed: 300 + i, color: 0x77808a, taper: 0.12, rough: 0.06, round: 0.12 }), blueMat);
+    m.position.set(p.x, heightAt(p.x, p.z) - 0.3, p.z); m.rotation.y = yawFor(phi) + rr(-0.15, 0.15);
+    const inSite = rel > 72 && rel < 198;
+    (inSite ? futureGroup : monument).add(m);
+  }
+  // un mucchio di bluestones in attesa, vicino al cantiere
+  for (let i = 0; i < 5; i++) {
+    const p = polar(23 + rr(-1.5, 1.5), 252 * D2R + rr(-0.08, 0.08));
+    const m = mesh(makeStone(rr(0.7, 1.1), rr(1.9, 2.3), rr(0.5, 0.7), { seed: 900 + i, color: 0x77808a, rough: 0.07 }), blueMat);
+    m.rotation.set(Math.PI / 2, rr(0, 6.28), 0, 'YXZ');
+    m.position.set(p.x, heightAt(p.x, p.z) + 0.35, p.z);
+    monument.add(m);
+  }
+
+  // ----- Altar Stone, Station Stones, Slaughter Stone, Heel Stone -----
+  {
+    const p = polar(4.5, BACK_PHI);
+    const m = mesh(makeStone(4.9, 0.5, 1.0, { seed: 77, color: 0x8f8d70, round: 0.12, rough: 0.04 }), sarsenMat);
+    m.position.set(p.x, heightAt(p.x, p.z) - 0.1, p.z); m.rotation.y = yawFor(BACK_PHI);
+    monument.add(m);
+    [62, -62, 180 + 62, 180 - 62].forEach((d, j) => {
+      const q = polar(39.5, AXIS_PHI + d * D2R);
+      const s = mesh(makeStone(1.0, 1.4, 0.8, { seed: 500 + j, rough: 0.12, weathered: true, color: 0xa9a291 }), sarsenMat);
+      s.position.set(q.x, heightAt(q.x, q.z) - 0.2, q.z); s.rotation.y = rand() * 6;
+      monument.add(s);
+    });
+    const ss = polar(46.5, AXIS_PHI - 0.07);
+    const sl = mesh(makeStone(2.0, 3.6, 0.9, { seed: 61, rough: 0.12, color: 0xa69f8e, weathered: true }), sarsenMat);
+    sl.position.set(ss.x, heightAt(ss.x, ss.z) - 0.4, ss.z); sl.rotation.y = yawFor(AXIS_PHI - 0.07);
+    monument.add(sl);
+    const hx = AX * 77 + PX * -2.6, hz = AZ * 77 + PZ * -2.6;
+    const hs = mesh(makeStone(2.5, 5.6, 2.2, { seed: 4.7, rough: 0.28, taper: 0.38, round: 0.7, weathered: true, color: 0xa39a85, sy: 16, sx: 9, sz: 9 }), sarsenMat);
+    hs.position.set(hx, heightAt(hx, hz) - 0.8, hz); hs.rotation.set(0.12, rand() * 6, 0.18, 'YXZ');
+    monument.add(hs);
+  }
+
+  // ---------- vegetazione ----------
+  const windU = { value: 0 };
+  function addWind(mat, amp) {
+    mat.onBeforeCompile = sh => {
+      sh.uniforms.uTime = windU;
+      sh.vertexShader = 'uniform float uTime;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+        #ifdef USE_INSTANCING
+          vec3 ip = vec3(instanceMatrix[3][0], instanceMatrix[3][1], instanceMatrix[3][2]);
+          float wv = sin(uTime * 1.7 + ip.x * 0.31 + ip.z * 0.17) + 0.45 * sin(uTime * 3.1 + ip.x * 0.8 - ip.z * 0.5);
+          float bend = position.y * position.y * ${amp.toFixed(2)};
+          transformed.x += wv * bend; transformed.z += wv * bend * 0.6;
+        #endif`);
+    };
+  }
+  let grassMesh = null, grassFull = 0;
+  {
+    // erba: ciuffi di fili curvi, più scuri alla base, mossi dal vento
+    const bp = [], bc = [];
+    for (let b = 0; b < 7; b++) {
+      const a = (b / 7) * Math.PI * 2 + rand(), lean = rr(0.08, 0.32), h = rr(0.2, 0.42), w = rr(0.014, 0.024);
+      const cx = Math.cos(a) * 0.035, cz = Math.sin(a) * 0.035, dx = Math.cos(a), dz = Math.sin(a), px = -Math.sin(a), pz = Math.cos(a);
+      const P = t => [cx + dx * lean * h * t * t * 2, h * t, cz + dz * lean * h * t * t * 2];
+      const [x0, y0, z0] = P(0), [x1, y1, z1] = P(0.55), [x2, y2, z2] = P(1);
+      const w1 = w * 0.7;
+      bp.push(x0 - px * w, y0, z0 - pz * w, x0 + px * w, y0, z0 + pz * w, x1 - px * w1, y1, z1 - pz * w1,
+              x0 + px * w, y0, z0 + pz * w, x1 + px * w1, y1, z1 + pz * w1, x1 - px * w1, y1, z1 - pz * w1,
+              x1 - px * w1, y1, z1 - pz * w1, x1 + px * w1, y1, z1 + pz * w1, x2, y2, z2);
+      [0.42, 0.42, 0.78, 0.42, 0.78, 0.78, 0.78, 0.78, 1.15].forEach(v => bc.push(v, v, v));
+    }
+    const blade = new THREE.BufferGeometry();
+    blade.setAttribute('position', new THREE.Float32BufferAttribute(bp, 3));
+    blade.setAttribute('color', new THREE.Float32BufferAttribute(bc, 3));
+    blade.computeVertexNormals();
+    const gmat = new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, side: THREE.DoubleSide, roughness: 0.9 });
+    addWind(gmat, 1.6);
+    const N = isMobile ? 16000 : 52000;
+    const gm = new THREE.InstancedMesh(blade, gmat, N);
+    const dm = new THREE.Object3D(), gc = new THREE.Color();
+    let n = 0, guard = 0;
+    const ok = (x, z, r) => {
+      const s = x * AX + z * AZ, l = x * PX + z * PZ;
+      if (s > 45 && Math.abs(l - 5.5) < 3.2) return false;
+      const sw = polar(18, BACK_PHI); if (Math.hypot(x - sw.x, z - sw.z) < 9) return false;
+      const ew = polar(24, lintelPhi(21)); if (Math.hypot(x - ew.x, z - ew.z) < 11) return false;
+      return !(r < 30 && rand() < 0.85);
+    };
+    while (n < N && guard++ < N * 6) {
+      const a = rand() * Math.PI * 2, r = 12 + Math.pow(rand(), 1.15) * 170;
+      const x = Math.cos(a) * r, z = Math.sin(a) * r;
+      if (!ok(x, z, r)) continue;
+      dm.position.set(x, heightAt(x, z) - 0.02, z); dm.rotation.set(rr(-0.12, 0.12), rand() * 6.28, rr(-0.12, 0.12));
+      const sc = rr(0.6, 1.15); dm.scale.set(sc, sc * rr(0.7, 1.35), sc); dm.updateMatrix();
+      gm.setMatrixAt(n, dm.matrix);
+      const dry = fbm2(x * 0.04, z * 0.04, 2);
+      gc.setHSL(rr(0.16, 0.23) - dry * 0.04, rr(0.3, 0.48), rr(0.2, 0.32) + dry * 0.05); gm.setColorAt(n, gc);
+      n++;
+    }
+    gm.count = n; grassFull = n; gm.receiveShadow = true; gm.frustumCulled = false;
+    scene.add(gm); grassMesh = gm;
+
+    // fiori del prato calcareo: ranuncoli, margherite, scabiosa
+    const NF = isMobile ? 1500 : 4500;
+    const fl = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(0.022, 0).translate(0, 0.2, 0), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7 }), NF);
+    const FC = [0xf2d23a, 0xf4f1e6, 0xb39ad6, 0xf2d23a, 0xe9e4f0];
+    let nf = 0;
+    for (let q = 0; q < NF * 3 && nf < NF; q++) {
+      const a = rand() * 6.28, r = 26 + rand() * 150, x = Math.cos(a) * r, z = Math.sin(a) * r;
+      if (!ok(x, z, r) || fbm2(x * 0.05, z * 0.05, 2) < -0.05) continue;
+      dm.position.set(x, heightAt(x, z), z); dm.rotation.set(0, 0, 0); const s = rr(0.7, 1.3); dm.scale.set(s, s, s); dm.updateMatrix();
+      fl.setMatrixAt(nf, dm.matrix); fl.setColorAt(nf, gc.set(FC[(rand() * FC.length) | 0])); nf++;
+    }
+    fl.count = nf; scene.add(fl);
+
+    // alberi e boscaglia lontani: chiome fatte di più masse irregolari
+    const cg = new THREE.IcosahedronGeometry(1, 2), cp = cg.attributes.position;
+    for (let i = 0; i < cp.count; i++) { const v = V3(cp.getX(i), cp.getY(i), cp.getZ(i)); v.multiplyScalar(1 + fbm3(v.x * 1.8, v.y * 1.8, v.z * 1.8, 3) * 0.35); cp.setXYZ(i, v.x, v.y, v.z); }
+    cg.computeVertexNormals();
+    const NT = 420;
+    const canopy = new THREE.InstancedMesh(cg, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1 }), NT * 3);
+    const trunk = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.15, 0.3, 1, 7).translate(0, 0.5, 0), barkMat, NT);
+    const clumps = [];
+    for (let c = 0; c < 30; c++) { const a = rand() * 6.28; clumps.push([a, rr(240, 1100)]); }
+    let nt = 0, nc = 0;
+    for (let q = 0; q < NT; q++) {
+      const [a0, d0] = clumps[q % clumps.length];
+      const a = a0 + rr(-0.05, 0.05) * (300 / d0) * 2, d = d0 + rr(-25, 25);
+      const x = Math.cos(a) * d, z = Math.sin(a) * d, y = heightAt(x, z);
+      const s = x * AX + z * AZ, l = x * PX + z * PZ; if (s > 0 && Math.abs(l) < 30) continue;
+      const hgt = rr(5, 13), cr = rr(2.6, 5.2);
+      dm.position.set(x, y, z); dm.rotation.set(0, rand() * 6, 0); dm.scale.set(1, hgt * 0.6, 1); dm.updateMatrix(); trunk.setMatrixAt(nt, dm.matrix);
+      gc.setHSL(rr(0.19, 0.27), rr(0.28, 0.42), rr(0.12, 0.2));
+      for (let k = 0; k < 3; k++) {
+        const ox = k === 0 ? 0 : rr(-0.7, 0.7) * cr, oz = k === 0 ? 0 : rr(-0.7, 0.7) * cr, sc = cr * (k === 0 ? 1 : rr(0.55, 0.8));
+        dm.position.set(x + ox, y + hgt * 0.6 + cr * (k === 0 ? 0.65 : rr(0.2, 0.9)), z + oz); dm.rotation.set(rand(), rand() * 6, rand());
+        dm.scale.set(sc, sc * rr(0.75, 1.0), sc); dm.updateMatrix(); canopy.setMatrixAt(nc, dm.matrix);
+        canopy.setColorAt(nc, gc.clone().offsetHSL(0, 0, rr(-0.03, 0.03))); nc++;
+      }
+      nt++;
+    }
+    trunk.count = nt; canopy.count = nc;
+    scene.add(canopy); scene.add(trunk);
+  }
+
+  /* =====================================================================
+     Parte 3: persone (istanziate e animate), funi, particelle
+     Corpo con proporzioni reali (~1,65 m), tunica di lana con cintura,
+     gonna/veste, mantello, capelli e barba variabili, gambali e calzari di pelle.
+     ===================================================================== */
+  function mergeGeos(list) {
+    const pos = [], nor = [], uvs = [];
+    list.forEach(g => {
+      const n = g.index ? g.toNonIndexed() : g;
+      pos.push(...n.attributes.position.array); nor.push(...n.attributes.normal.array);
+      if (n.attributes.uv) uvs.push(...n.attributes.uv.array); else for (let i = 0; i < n.attributes.position.count; i++) uvs.push(0, 0);
+    });
+    const out = new THREE.BufferGeometry();
+    out.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    out.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
+    out.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+    return out;
+  }
+  const lathe = (pts, seg, p0, pl) => new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), seg || 16, p0 || 0, pl || Math.PI * 2);
+  function joint(parent, x, y, z) { const o = new THREE.Object3D(); o.position.set(x, y, z); parent.add(o); return o; }
+
+  // ----- scheletro modello (riusato per ogni persona) -----
+  const SK = {};
+  SK.root = new THREE.Object3D(); SK.root.matrixAutoUpdate = false;
+  SK.hips = joint(SK.root, 0, 0.92, 0);
+  SK.torso = joint(SK.hips, 0, 0.02, 0);
+  SK.neck = joint(SK.torso, 0, 0.56, 0);
+  SK.head = joint(SK.neck, 0, 0.12, 0);
+  SK.shL = joint(SK.torso, 0.205, 0.5, 0); SK.shR = joint(SK.torso, -0.205, 0.5, 0);
+  SK.elL = joint(SK.shL, 0, -0.28, 0); SK.elR = joint(SK.shR, 0, -0.28, 0);
+  SK.handR = joint(SK.elR, 0, -0.27, 0);
+  SK.basketJ = joint(SK.torso, 0.15, 0.78, -0.02);
+  SK.logJ = joint(SK.torso, 0.17, 0.66, 0.2);
+  SK.skirt = joint(SK.hips, 0, 0, 0);
+  SK.hpL = joint(SK.hips, 0.1, -0.03, 0); SK.hpR = joint(SK.hips, -0.1, -0.03, 0);
+  SK.knL = joint(SK.hpL, 0, -0.43, 0); SK.knR = joint(SK.hpR, 0, -0.43, 0);
+
+  // ----- materiali e texture di stoffa, capelli, vimini -----
+  const woolTex = canvasTex(256, (g, s) => {
+    g.fillStyle = '#ece7dc'; g.fillRect(0, 0, s, s);
+    for (let y = 0; y < s; y += 3) { g.fillStyle = 'rgba(120,105,80,' + (0.06 + rand() * 0.08) + ')'; g.fillRect(0, y, s, 1); }
+    for (let x = 0; x < s; x += 3) { g.fillStyle = 'rgba(120,105,80,' + (0.04 + rand() * 0.06) + ')'; g.fillRect(x, 0, 1, s); }
+    speckle(g, 2500, s, 0.25, ['#cfc6b4', '#fffaf0', '#b9ae98'], 0.5, 2);
+  });
+  const woolN = normalMapFrom(woolTex, 3);
+  const hairTex = canvasTex(128, (g, s) => {
+    g.fillStyle = '#d8d8d8'; g.fillRect(0, 0, s, s);
+    for (let i = 0; i < 500; i++) { g.strokeStyle = rand() < 0.5 ? '#9a9a9a' : '#f4f4f4'; g.globalAlpha = 0.5; const x = rand() * s; g.beginPath(); g.moveTo(x, 0); g.lineTo(x + rr(-3, 3), s); g.stroke(); }
+    g.globalAlpha = 1;
+  });
+  const wickerTex = canvasTex(128, (g, s) => {
+    g.fillStyle = '#b39466'; g.fillRect(0, 0, s, s);
+    for (let y = 0; y < s; y += 8) for (let x = 0; x < s; x += 8) { g.fillStyle = ((x + y) / 8) % 2 ? '#8c6f45' : '#d2b583'; g.fillRect(x, y + 1, 8, 6); }
+  });
+  const M = {
+    cloth: new THREE.MeshStandardMaterial({ map: woolTex, normalMap: woolN, roughness: 1, side: THREE.DoubleSide }),
+    skin: new THREE.MeshStandardMaterial({ roughness: 0.6, metalness: 0 }),
+    hair: new THREE.MeshStandardMaterial({ map: hairTex, roughness: 0.75, side: THREE.DoubleSide }),
+    leather: new THREE.MeshStandardMaterial({ map: soilTex, normalMap: soilN, roughness: 0.7 }),
+    dark: new THREE.MeshStandardMaterial({ roughness: 0.35 }),
+    stone: new THREE.MeshStandardMaterial({ map: stoneTex, normalMap: stoneN, roughness: 0.9 }),
+    wicker: new THREE.MeshStandardMaterial({ map: wickerTex, roughness: 0.95, side: THREE.DoubleSide }),
+    wood: barkMat,
+  };
+
+  // ----- geometrie delle parti del corpo -----
+  const hairCap = () => new THREE.SphereGeometry(0.106, 18, 10, 0, Math.PI * 2, 0, Math.PI * 0.58).rotateX(-0.35).scale(0.94, 1.04, 1.06).translate(0, 0.024, -0.012);
+  const G = {
+    torso: lathe([[0.135, -0.03], [0.16, 0.05], [0.175, 0.18], [0.195, 0.33], [0.205, 0.44], [0.185, 0.51], [0.12, 0.56], [0.06, 0.585], [0.001, 0.59]]).scale(1, 1, 0.64),
+    belt: new THREE.TorusGeometry(0.152, 0.022, 6, 22).rotateX(Math.PI / 2).scale(1, 1, 0.68).translate(0, 0.02, 0),
+    skirt: lathe([[0.15, 0.06], [0.165, 0.0], [0.2, -0.12], [0.235, -0.28], [0.255, -0.4], [0.25, -0.42]]).scale(1, 1, 0.76),
+    cloak: lathe([[0.08, 0.6], [0.19, 0.53], [0.235, 0.4], [0.25, 0.15], [0.27, -0.15], [0.29, -0.3]], 12, Math.PI / 2, Math.PI).scale(1, 1, 0.74).translate(0, 0, -0.015),
+    neck: new THREE.CylinderGeometry(0.047, 0.055, 0.13, 10).translate(0, 0.03, 0),
+    head: mergeGeos([
+      new THREE.SphereGeometry(0.098, 18, 14).scale(0.9, 1.04, 1.02).translate(0, 0.02, -0.005),
+      new THREE.SphereGeometry(0.072, 14, 10).translate(0, -0.045, 0.028),
+      new THREE.ConeGeometry(0.017, 0.044, 6).rotateX(Math.PI / 2 + 0.3).translate(0, -0.012, 0.1),
+      new THREE.SphereGeometry(0.022, 8, 6).scale(0.45, 1, 0.75).translate(0.088, 0, 0),
+      new THREE.SphereGeometry(0.022, 8, 6).scale(0.45, 1, 0.75).translate(-0.088, 0, 0),
+    ]),
+    eyes: mergeGeos([new THREE.SphereGeometry(0.0085, 8, 6).translate(0.031, 0.006, 0.08), new THREE.SphereGeometry(0.0085, 8, 6).translate(-0.031, 0.006, 0.08)]),
+    brows: mergeGeos([new THREE.BoxGeometry(0.032, 0.006, 0.008).rotateZ(-0.15).translate(0.032, 0.028, 0.087), new THREE.BoxGeometry(0.032, 0.006, 0.008).rotateZ(0.15).translate(-0.032, 0.028, 0.087)]),
+    hair0: hairCap(),
+    hair1: mergeGeos([hairCap(), new THREE.SphereGeometry(0.1, 14, 10).scale(1.0, 1.75, 0.5).translate(0, -0.1, -0.075)]),
+    hair2: mergeGeos([hairCap(), new THREE.SphereGeometry(0.048, 10, 8).translate(0, 0.05, -0.105)]),
+    beard: new THREE.SphereGeometry(0.074, 14, 10).scale(1.02, 1.08, 0.78).translate(0, -0.07, 0.04),
+    sleeve: new THREE.CylinderGeometry(0.066, 0.058, 0.15, 12, 1, true).translate(0, -0.05, 0),
+    uarm: new THREE.CapsuleGeometry(0.046, 0.19, 4, 10).translate(0, -0.135, 0),
+    farm: mergeGeos([new THREE.CapsuleGeometry(0.04, 0.19, 4, 10).translate(0, -0.125, 0), new THREE.SphereGeometry(0.044, 10, 8).scale(0.8, 1.25, 0.55).translate(0, -0.285, 0.01)]),
+    thigh: new THREE.CapsuleGeometry(0.068, 0.29, 4, 10).translate(0, -0.215, 0),
+    shin: new THREE.CapsuleGeometry(0.05, 0.3, 4, 10).translate(0, -0.21, 0),
+    foot: new THREE.SphereGeometry(0.055, 12, 8).scale(0.9, 0.62, 2.05).translate(0, -0.43, 0.05),
+    maul: new THREE.IcosahedronGeometry(0.12, 1).scale(1, 0.85, 1.1).translate(0, -0.33, 0.03),
+    basket: mergeGeos([new THREE.CylinderGeometry(0.19, 0.14, 0.26, 16, 1, true), new THREE.CylinderGeometry(0.14, 0.14, 0.02, 16).translate(0, -0.12, 0), new THREE.SphereGeometry(0.17, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2).scale(1, 0.4, 1).translate(0, 0.1, 0)]),
+    log: new THREE.CylinderGeometry(0.11, 0.12, 2.6, 9).rotateX(Math.PI / 2),
+  };
+  const build = p => _sc.set(p.build, 1, p.build);
+  const _sc = V3(1, 1, 1);
+  const PARTS = [
+    { g: 'torso', j: ['torso'], m: 'cloth', c: 'cloth', sc: build },
+    { g: 'belt', j: ['torso'], m: 'leather', c: 'belt', sc: build },
+    { g: 'skirt', j: ['skirt'], m: 'cloth', c: 'cloth2', sc: p => _sc.set(p.build, p.dress ? 1.55 : 1, p.build) },
+    { g: 'cloak', j: ['torso'], m: 'cloth', c: 'cloak', opt: p => p.cloak, sc: build },
+    { g: 'neck', j: ['neck'], m: 'skin', c: 'skin' },
+    { g: 'head', j: ['head'], m: 'skin', c: 'skin' },
+    { g: 'eyes', j: ['head'], m: 'dark', c: 'eye' },
+    { g: 'brows', j: ['head'], m: 'hair', c: 'hair' },
+    { g: 'hair0', j: ['head'], m: 'hair', c: 'hair', opt: p => p.hair === 0 },
+    { g: 'hair1', j: ['head'], m: 'hair', c: 'hair', opt: p => p.hair === 1 },
+    { g: 'hair2', j: ['head'], m: 'hair', c: 'hair', opt: p => p.hair === 2 },
+    { g: 'beard', j: ['head'], m: 'hair', c: 'hair', opt: p => p.beard },
+    { g: 'sleeve', j: ['shL', 'shR'], m: 'cloth', c: 'cloth' },
+    { g: 'uarm', j: ['shL', 'shR'], m: 'skin', c: 'skin' },
+    { g: 'farm', j: ['elL', 'elR'], m: 'skin', c: 'skin' },
+    { g: 'thigh', j: ['hpL', 'hpR'], m: 'skin', c: 'leg' },
+    { g: 'shin', j: ['knL', 'knR'], m: 'leather', c: 'wrap' },
+    { g: 'foot', j: ['knL', 'knR'], m: 'leather', c: 'shoe' },
+    { g: 'maul', j: ['handR'], m: 'stone', c: 'maul', opt: p => p.tool },
+    { g: 'basket', j: ['basketJ'], m: 'wicker', c: 'white', opt: p => p.basket && p.pose === 'carry' },
+    { g: 'log', j: ['logJ'], m: 'wood', c: 'white', opt: p => p.log && p.pose === 'carry' },
+  ];
+  const MAXP = 280;
+  PARTS.forEach(pt => {
+    pt.mesh = new THREE.InstancedMesh(G[pt.g], M[pt.m], MAXP * pt.j.length);
+    pt.mesh.castShadow = true; pt.mesh.receiveShadow = true; pt.mesh.frustumCulled = false;
+    pt.mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    pt.mesh.count = 0;
+    scene.add(pt.mesh);
+  });
+  const PAL = {
+    cloth: [0x8b7d65, 0x6e5b44, 0x7a5634, 0x4f4234, 0x9a7446, 0xa99b7e, 0x6b5a40, 0x857257, 0x5d5547],
+    cloak: [0x5a4632, 0x6f6658, 0x4a3b2c, 0x7a6449, 0x3f3a33],
+    skin: [0xb0805e, 0x9e7152, 0xbb8d6a, 0x8f6447, 0xa57858, 0xc19572],
+    hair: [0x241a12, 0x2f2218, 0x3b2a1c, 0x1b1511, 0x4a3524, 0x332a22],
+    leather: [0x4e3b2a, 0x5a4532, 0x6a5038, 0x3f2f22],
+    wrap: [0x6d5d48, 0x5a4a38, 0x7f6e55, 0x4e4336],
+  };
+  const pick = a => a[(rand() * a.length) | 0];
+  const people = [];
+  const stationVis = {};
+  function addPerson(o) {
+    const female = o.female != null ? o.female : rand() < 0.25;
+    const child = !!o.child;
+    const skin = pick(PAL.skin), cloth = pick(PAL.cloth);
+    const p = Object.assign({
+      x: 0, y: 0, z: 0, yaw: 0, pose: 'idle', phase: rand() * 10, speed: 1, snap: true, yOff: 0,
+      female, child,
+      scale: child ? rr(0.55, 0.68) : female ? rr(0.88, 0.94) : rr(0.94, 1.02),
+      build: child ? 0.85 : female ? rr(0.86, 0.95) : rr(0.95, 1.12),
+      beard: !female && !child && rand() < 0.55,
+      hair: female ? (rand() < 0.6 ? 1 : 2) : (rand() < 0.55 ? 0 : rand() < 0.6 ? 1 : 2),
+      dress: female && rand() < 0.75, cloak: rand() < 0.14, iv: (rand() * 3) | 0,
+      tool: false, basket: false, log: false, station: 'site', parent: null,
+    }, o);
+    const legBare = rand() < 0.4;
+    p.cols = {
+      cloth: new THREE.Color(cloth), cloth2: new THREE.Color(cloth).multiplyScalar(rr(0.78, 0.95)), cloak: new THREE.Color(pick(PAL.cloak)),
+      skin: new THREE.Color(skin), hair: new THREE.Color(pick(PAL.hair)), eye: new THREE.Color(0x1d140e),
+      belt: new THREE.Color(pick(PAL.leather)), leg: new THREE.Color(legBare ? skin : pick(PAL.wrap)), wrap: new THREE.Color(legBare ? skin : pick(PAL.wrap)),
+      shoe: new THREE.Color(pick(PAL.leather)), maul: new THREE.Color(0xc4bcae), white: new THREE.Color(0xffffff),
+    };
+    p.idx = people.length;
+    people.push(p);
+    PARTS.forEach(pt => pt.j.forEach((_, k) => pt.mesh.setColorAt(p.idx * pt.j.length + k, p.cols[pt.c])));
+    return p;
+  }
+
+  // ----- pose e movimento -----
+  function setPose(p, tt) {
+    const t = tt * p.speed + p.phase, S = SK;
+    const br = Math.sin(tt * 1.25 + p.phase * 3); // respiro
+    S.hips.position.set(0, 0.92, 0); S.hips.rotation.set(0, 0, 0);
+    S.torso.rotation.set(0.03 + br * 0.012, 0, 0); S.neck.rotation.set(0, 0, 0); S.head.rotation.set(0, 0, 0);
+    S.shL.rotation.set(0.04, 0, 0.1 + br * 0.01); S.shR.rotation.set(0.04, 0, -0.1 - br * 0.01);
+    S.elL.rotation.set(-0.22, 0, 0); S.elR.rotation.set(-0.22, 0, 0);
+    S.hpL.rotation.set(0, 0, 0.03); S.hpR.rotation.set(0, 0, -0.03);
+    S.knL.rotation.set(0.04, 0, 0); S.knR.rotation.set(0.04, 0, 0);
+    const legs = (amp, ph) => {
+      const s = Math.sin(ph);
+      S.hpL.rotation.x = -s * amp; S.hpR.rotation.x = s * amp;
+      S.knL.rotation.x = 0.08 + amp * 1.6 * Math.max(0, Math.sin(ph + 1.3));
+      S.knR.rotation.x = 0.08 + amp * 1.6 * Math.max(0, Math.sin(ph + 1.3 + Math.PI));
+      S.hips.position.y = 0.92 - 0.03 + Math.abs(Math.cos(ph)) * 0.03;
+      S.hips.rotation.y = s * amp * 0.22; S.hips.rotation.z = Math.cos(ph) * 0.035;
+      S.torso.rotation.y = -s * amp * 0.3; S.torso.rotation.z = -Math.cos(ph) * 0.03;
+    };
+    let lean = 0;
+    switch (p.pose) {
+      case 'walk': {
+        legs(0.42, t);
+        S.shL.rotation.x = Math.sin(t) * 0.45; S.shR.rotation.x = -Math.sin(t) * 0.45;
+        S.elL.rotation.x = -0.25 - 0.3 * Math.max(0, -Math.sin(t)); S.elR.rotation.x = -0.25 - 0.3 * Math.max(0, Math.sin(t));
+        lean = 0.06; S.torso.rotation.x = lean; S.neck.rotation.x = -0.04; break;
+      }
+      case 'pull': { // tira la fune camminando in avanti, curvo
+        legs(0.3, t); S.hips.position.y -= 0.06;
+        lean = 0.5 + Math.sin(t * 2) * 0.04; S.torso.rotation.x = lean; S.neck.rotation.x = -0.4; S.head.rotation.x = -0.1;
+        S.shL.rotation.set(-1.35 + Math.sin(t) * 0.05, 0, -0.06); S.shR.rotation.set(-1.4, 0, 0.06);
+        S.elL.rotation.x = -0.25; S.elR.rotation.x = -0.3; break;
+      }
+      case 'haul': { // tira la fune all'indietro, piedi puntati
+        const h = Math.sin(t * 1.4);
+        S.hips.position.y = 0.85 + h * 0.02;
+        lean = -0.32 + h * 0.07; S.torso.rotation.x = lean; S.neck.rotation.x = 0.28;
+        S.hpL.rotation.x = -0.6; S.knL.rotation.x = 0.4; S.hpR.rotation.x = 0.35; S.knR.rotation.x = 0.3;
+        S.shL.rotation.set(-1.05 - h * 0.12, 0, -0.14); S.shR.rotation.set(-0.95 - h * 0.12, 0, 0.14);
+        S.elL.rotation.x = -0.12; S.elR.rotation.x = -0.25; break;
+      }
+      case 'lever': { // spinge in basso una leva
+        const h = 0.5 + 0.5 * Math.sin(t * 1.6);
+        S.hips.position.y = 0.87 - h * 0.13;
+        lean = 0.45 + h * 0.38; S.torso.rotation.x = lean; S.neck.rotation.x = -0.4;
+        S.hpL.rotation.x = -0.55 - h * 0.3; S.knL.rotation.x = 0.45 + h * 0.45; S.hpR.rotation.x = 0.28; S.knR.rotation.x = 0.22 + h * 0.3;
+        S.shL.rotation.set(-0.6 - lean, 0, 0.12); S.shR.rotation.set(-0.6 - lean, 0, -0.12);
+        S.elL.rotation.x = -0.25; S.elR.rotation.x = -0.25; break;
+      }
+      case 'pound': { // batte con il mazzuolo di sarsen
+        const u = (t * 0.55) % 1;
+        const a = u < 0.72 ? -0.5 - 2.4 * easeIO(u / 0.72) : -2.9 + 2.4 * Math.pow((u - 0.72) / 0.28, 1.6);
+        S.hips.position.y = 0.83;
+        lean = 0.5 - (a + 0.5) * 0.1; S.torso.rotation.x = lean; S.neck.rotation.x = -0.35;
+        S.hpL.rotation.x = -0.4; S.knL.rotation.x = 0.45; S.hpR.rotation.x = 0.18; S.knR.rotation.x = 0.38;
+        S.shL.rotation.set(a - lean * 0.5, 0, -0.2); S.shR.rotation.set(a - lean * 0.5, 0, 0.2);
+        S.elL.rotation.x = -0.35; S.elR.rotation.x = -0.35;
+        p._impact = p._u != null && u < p._u; // il colpo arriva alla fine della discesa
+        p._u = u; break;
+      }
+      case 'carry': { // cesta o tronco sulla spalla sinistra
+        legs(0.36, t);
+        S.shL.rotation.set(0, 0, 2.6); S.elL.rotation.set(0, 0, 0.9);
+        S.shR.rotation.x = -Math.sin(t) * 0.35; S.elR.rotation.x = -0.3;
+        lean = 0.1; S.torso.rotation.x = lean; S.torso.rotation.z = -0.06; S.neck.rotation.z = -0.12; break;
+      }
+      case 'point': { // il capo squadra dà il ritmo
+        S.torso.rotation.y = Math.sin(t * 0.5) * 0.25;
+        S.shR.rotation.set(-1.6 - 0.5 * Math.max(0, Math.sin(t * 1.4)), 0, -0.25); S.elR.rotation.x = -0.2;
+        S.shL.rotation.set(0.1, 0, 0.55); S.elL.rotation.set(0, 0, -1.6);
+        S.hpL.rotation.x = -0.15; S.hpR.rotation.x = 0.12; S.neck.rotation.y = Math.sin(t * 0.5) * 0.2; break;
+      }
+      case 'sit': {
+        S.hips.position.y = 0.44;
+        S.hpL.rotation.set(-1.45, 0, 0.12); S.hpR.rotation.set(-1.35, 0, -0.12); S.knL.rotation.x = 1.55; S.knR.rotation.x = 1.3;
+        lean = 0.22; S.torso.rotation.x = lean; S.shL.rotation.x = -0.8; S.shR.rotation.x = -0.9; S.elL.rotation.x = -0.8; S.elR.rotation.x = -0.7;
+        S.neck.rotation.y = Math.sin(t * 0.3) * 0.4; S.neck.rotation.x = Math.sin(t * 0.21) * 0.1; break;
+      }
+      default: { // in piedi: braccia rilassate, conserte o sui fianchi
+        S.hips.position.x = Math.sin(t * 0.23) * 0.025; S.hips.rotation.z = Math.sin(t * 0.23) * 0.03;
+        S.hpL.rotation.z = 0.05; S.hpR.rotation.z = -0.05;
+        S.neck.rotation.y = Math.sin(t * 0.37) * 0.4 + Math.sin(t * 0.11) * 0.2; S.neck.rotation.x = Math.sin(t * 0.29) * 0.06;
+        if (p.iv === 1) { S.shL.rotation.set(-0.5, 0, -0.12); S.elL.rotation.set(-1.4, 0, -0.9); S.shR.rotation.set(-0.45, 0, 0.12); S.elR.rotation.set(-1.4, 0, 0.9); }
+        else if (p.iv === 2) { S.shL.rotation.set(0.15, 0, 0.55); S.elL.rotation.set(0, 0, -1.6); S.shR.rotation.set(0.15, 0, -0.55); S.elR.rotation.set(0, 0, 1.6); }
+        else { S.shL.rotation.x = Math.sin(t * 0.5) * 0.06; }
+      }
+    }
+    // la veste segue le gambe, il capo compensa l'inclinazione del busto
+    S.skirt.rotation.x = (S.hpL.rotation.x + S.hpR.rotation.x) * 0.5;
+    S.skirt.rotation.y = -S.hips.rotation.y * 0.5;
+    if (p.pose !== 'pull' && p.pose !== 'haul') S.head.rotation.x -= lean * 0.3;
+  }
+
+  const _m = new THREE.Matrix4(), _m2 = new THREE.Matrix4(), _q = new THREE.Quaternion(), _e = new THREE.Euler(), _p = V3(0, 0, 0), _s = V3(1, 1, 1);
+  const ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
+  const _hand = V3(0, 0, 0);
+  function updatePeople(t, dt) {
+    for (let i = 0; i < people.length; i++) {
+      const p = people[i];
+      if (p.tick) p.tick(p, t, dt);
+      const vis = p.visible !== false && stationVis[p.station] !== false;
+      if (!vis) { PARTS.forEach(pt => pt.j.forEach((_, k) => pt.mesh.setMatrixAt(i * pt.j.length + k, ZERO))); continue; }
+      setPose(p, t);
+      _e.set(0, p.yaw, 0); _q.setFromEuler(_e); _p.set(p.x, p.y, p.z); _s.setScalar(p.scale);
+      _m.compose(_p, _q, _s);
+      if (p.parent) _m.premultiply(p.parent.matrixWorld);
+      if (p.snap) { const e = _m.elements; e[13] = heightAt(e[12], e[14]) + p.yOff; }
+      SK.root.matrix.copy(_m); SK.root.updateMatrixWorld(true);
+      for (const pt of PARTS) {
+        const nj = pt.j.length;
+        for (let k = 0; k < nj; k++) {
+          if (pt.opt && !pt.opt(p)) { pt.mesh.setMatrixAt(i * nj + k, ZERO); continue; }
+          const mw = SK[pt.j[k]].matrixWorld;
+          if (pt.sc) { _m2.copy(mw).scale(pt.sc(p)); pt.mesh.setMatrixAt(i * nj + k, _m2); }
+          else pt.mesh.setMatrixAt(i * nj + k, mw);
+        }
+      }
+      if (p._impact && p.tool) { _hand.setFromMatrixPosition(SK.handR.matrixWorld); dust.emit(_hand, 6, 0.35, 0.6); }
+    }
+    PARTS.forEach(pt => { pt.mesh.count = people.length * pt.j.length; pt.mesh.instanceMatrix.needsUpdate = true; if (pt.mesh.instanceColor) pt.mesh.instanceColor.needsUpdate = true; });
+  }
+
+  // ----- funi -----
+  const ropeMesh = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.028, 0.028, 1, 5).translate(0, 0.5, 0).rotateX(Math.PI / 2), ropeMat, 900);
+  ropeMesh.castShadow = true; ropeMesh.frustumCulled = false;
+  ropeMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  scene.add(ropeMesh);
+  const ropes = [];
+  const _rd = new THREE.Object3D();
+  function addRope(fn, station) { ropes.push({ fn, station }); }
+  function updateRopes() {
+    let n = 0;
+    ropes.forEach(r => {
+      if (stationVis[r.station] === false) return;
+      const pts = r.fn(); if (!pts) return;
+      for (let i = 0; i < pts.length - 1 && n < 900; i++) {
+        _rd.position.copy(pts[i]); _rd.lookAt(pts[i + 1]);
+        _rd.scale.set(1, 1, pts[i].distanceTo(pts[i + 1])); _rd.updateMatrix();
+        ropeMesh.setMatrixAt(n++, _rd.matrix);
+      }
+    });
+    ropeMesh.count = n; ropeMesh.instanceMatrix.needsUpdate = true;
+  }
+
+  // ----- particelle (polvere della lavorazione, fumo dei fuochi) -----
+  function makeParticles(max, color, opacity, grow, buoy) {
+    const pos = new Float32Array(max * 3), alpha = new Float32Array(max), size = new Float32Array(max);
+    const vel = new Float32Array(max * 3), life = new Float32Array(max), maxLife = new Float32Array(max);
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('alpha', new THREE.BufferAttribute(alpha, 1));
+    geo.setAttribute('size', new THREE.BufferAttribute(size, 1));
+    const mat = new THREE.ShaderMaterial({
+      transparent: true, depthWrite: false,
+      uniforms: { color: { value: new THREE.Color(color) }, scale: { value: VH * 0.5 } },
+      vertexShader: 'attribute float alpha; attribute float size; varying float vA; uniform float scale; void main(){ vA = alpha; vec4 mv = modelViewMatrix * vec4(position,1.0); gl_PointSize = size * scale / -mv.z; gl_Position = projectionMatrix * mv; }',
+      fragmentShader: 'uniform vec3 color; varying float vA; void main(){ float d = length(gl_PointCoord - 0.5); float a = smoothstep(0.5, 0.0, d) * vA; if (a < 0.01) discard; gl_FragColor = vec4(color, a); \n#include <colorspace_fragment>\n }',
+    });
+    const pts = new THREE.Points(geo, mat); pts.frustumCulled = false; scene.add(pts);
+    let head = 0;
+    return {
+      mat,
+      emit(at, n, spread, up) {
+        for (let k = 0; k < n; k++) {
+          const i = head; head = (head + 1) % max;
+          pos[i * 3] = at.x + rr(-spread, spread) * 0.3; pos[i * 3 + 1] = at.y; pos[i * 3 + 2] = at.z + rr(-spread, spread) * 0.3;
+          vel[i * 3] = rr(-spread, spread); vel[i * 3 + 1] = rr(0.2, 1) * up; vel[i * 3 + 2] = rr(-spread, spread);
+          maxLife[i] = life[i] = rr(1.2, 2.6) * (grow > 1 ? 3 : 1); size[i] = rr(0.15, 0.3) * (grow > 1 ? 2.5 : 1);
+        }
+      },
+      update(dt) {
+        for (let i = 0; i < max; i++) {
+          if (life[i] <= 0) { alpha[i] = 0; continue; }
+          life[i] -= dt;
+          pos[i * 3] += vel[i * 3] * dt; pos[i * 3 + 1] += vel[i * 3 + 1] * dt; pos[i * 3 + 2] += vel[i * 3 + 2] * dt;
+          vel[i * 3 + 1] += buoy * dt; vel[i * 3] *= 0.985; vel[i * 3 + 2] *= 0.985;
+          vel[i * 3] += 0.25 * dt; // brezza da ovest
+          const f = life[i] / maxLife[i];
+          alpha[i] = opacity * Math.min(1, (1 - f) * 6) * f;
+          size[i] += grow * dt * 0.3;
+        }
+        geo.attributes.position.needsUpdate = true; geo.attributes.alpha.needsUpdate = true; geo.attributes.size.needsUpdate = true;
+      },
+    };
+  }
+  const dust = makeParticles(600, 0xd9d2c2, 0.55, 0.6, -0.15);
+  const smoke = makeParticles(260, 0x8f8a84, 0.35, 2.2, 0.25);
+
+  /* =====================================================================
+     Parte 4: i cantieri (stazioni didattiche)
+     ===================================================================== */
+  function makeLines(radius, mat, max) {
+    const m = new THREE.InstancedMesh(new THREE.CylinderGeometry(radius, radius * 1.1, 1, 7).translate(0, 0.5, 0).rotateX(Math.PI / 2), mat, max);
+    m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false;
+    m.instanceMatrix.setUsage(THREE.DynamicDrawUsage); scene.add(m);
+    const list = [];
+    return {
+      add(fn, station) { list.push({ fn, station }); },
+      update() {
+        let n = 0;
+        list.forEach(l => {
+          if (stationVis[l.station] === false) return;
+          const pts = l.fn(); if (!pts) return;
+          for (let i = 0; i < pts.length - 1 && n < max; i++) {
+            _rd.position.copy(pts[i]); _rd.lookAt(pts[i + 1]);
+            _rd.scale.set(1, 1, pts[i].distanceTo(pts[i + 1])); _rd.updateMatrix();
+            m.setMatrixAt(n++, _rd.matrix);
+          }
+        });
+        m.count = n; m.instanceMatrix.needsUpdate = true;
+      },
+    };
+  }
+  const poles = makeLines(0.06, woodMat, 160);
+  function makeFrame(r, phi, y) {
+    const g = new THREE.Group(), p = polar(r, phi);
+    g.position.set(p.x, y != null ? y : heightAt(p.x, p.z), p.z); g.rotation.y = yawFor(phi);
+    scene.add(g); g.updateMatrixWorld(true); return g;
+  }
+  const W = (g, x, y, z) => g.localToWorld(V3(x, y, z));
+  const groundW = (g, x, yo, z) => { const v = W(g, x, 0, z); v.y = heightAt(v.x, v.z) + yo; return v; };
+  function cylBetween(a, b, r, mat) {
+    const len = a.distanceTo(b), m = mesh(new THREE.CylinderGeometry(r, r * 1.1, len, 8), mat || barkMat);
+    m.position.copy(a).add(b).multiplyScalar(0.5);
+    m.quaternion.setFromUnitVectors(V3(0, 1, 0), b.clone().sub(a).normalize());
+    return m;
+  }
+  function sledge(len, width) {
+    const g = new THREE.Group();
+    [-width / 2, width / 2].forEach(x => { const r = mesh(new THREE.BoxGeometry(0.26, 0.26, len), woodMat); r.position.set(x, 0.13, 0); g.add(r); });
+    for (let z = -len / 2 + 0.4; z <= len / 2 - 0.3; z += 1.2) { const c = mesh(new THREE.BoxGeometry(width + 0.45, 0.14, 0.2), woodMat); c.position.set(0, 0.32, z); g.add(c); }
+    return g;
+  }
+  const stations = {};
+  const phaseState = {};
+
+  /* ---------- 1. TRASPORTO lungo l'Avenue ---------- */
+  {
+    const haul = new THREE.Group(); scene.add(haul);
+    const sled = new THREE.Group(); haul.add(sled);
+    sled.add(sledge(6.6, 1.7));
+    const sg = makeStone(2.1, 5.6, 1.15, { seed: 42, color: 0x9d927d, rough: 0.13, weathered: true });
+    sg.rotateX(Math.PI / 2); sg.translate(0, 0.41 + 0.575, -2.8);
+    sled.add(mesh(sg, sarsenMat));
+    const yaw = Math.atan2(-AX, -AZ);
+    const S0 = 245, S1 = 92, V = 0.55;
+    const posAt = s => V3(AX * s + PX * 5.5, 0, AZ * s + PZ * 5.5);
+    // binari e traversine lungo tutto il percorso
+    const railSeg = 4, nSeg = Math.ceil((262 - 52) / railSeg);
+    const rails = new THREE.InstancedMesh(new THREE.BoxGeometry(0.22, 0.18, railSeg + 0.05), woodMat, nSeg * 2);
+    const nSl = Math.ceil((262 - 52) / 1.1);
+    const sleepers = new THREE.InstancedMesh(new THREE.BoxGeometry(2.7, 0.13, 0.24), barkMat, nSl);
+    const dm = new THREE.Object3D(); let ri = 0;
+    for (let k = 0; k < nSeg; k++) {
+      const s = 52 + k * railSeg + railSeg / 2;
+      [-0.85, 0.85].forEach(off => {
+        const c = posAt(s); c.x += -AZ * 0 + PX * off; c.z += PZ * off;
+        const a = V3(c.x + AX * railSeg / 2, 0, c.z + AZ * railSeg / 2), b = V3(c.x - AX * railSeg / 2, 0, c.z - AZ * railSeg / 2);
+        a.y = heightAt(a.x, a.z) + 0.16; b.y = heightAt(b.x, b.z) + 0.16;
+        dm.position.copy(a).add(b).multiplyScalar(0.5); dm.lookAt(b); dm.scale.set(1, 1, 1); dm.updateMatrix();
+        rails.setMatrixAt(ri++, dm.matrix);
+      });
+    }
+    for (let k = 0; k < nSl; k++) {
+      const c = posAt(52 + k * 1.1 + rr(-0.08, 0.08));
+      dm.position.set(c.x, heightAt(c.x, c.z) + 0.03, c.z); dm.rotation.set(0, yaw + rr(-0.06, 0.06), 0); dm.updateMatrix();
+      sleepers.setMatrixAt(k, dm.matrix);
+    }
+    [rails, sleepers].forEach(m => { m.castShadow = m.receiveShadow = true; scene.add(m); });
+
+    // squadre di trazione: 4 funi a ventaglio
+    const ropeA = [-0.9, -0.3, 0.3, 0.9], ropeE = [-4.4, -1.5, 1.5, 4.4], RZ0 = 3.4, RZ1 = 37;
+    ropeA.forEach((xa, j) => {
+      for (let m = 0; m < 18; m++) {
+        const z = 6.4 + m * 1.65, u = (z - RZ0) / (RZ1 - RZ0), x = lerp(xa, ropeE[j], u) + (m % 2 ? 0.3 : -0.3);
+        addPerson({ parent: haul, x, z, yaw: 0, pose: 'pull', speed: 3.9, station: 'haul' });
+      }
+      addRope(() => {
+        const pts = [];
+        const a = W(haul, xa, 0, RZ0); a.y = heightAt(a.x, a.z) + 0.7; pts.push(a);
+        for (let z = 6; z <= RZ1; z += 3.1) { const u = (z - RZ0) / (RZ1 - RZ0); pts.push(groundW(haul, lerp(xa, ropeE[j], u), 0.93, z)); }
+        return pts;
+      }, 'haul');
+    });
+    // leve dietro la slitta
+    const leverX = [-1.35, -0.8, -0.27, 0.27, 0.8, 1.35];
+    leverX.forEach(x => {
+      const p = addPerson({ parent: haul, x, z: -4.25, yaw: 0, pose: 'lever', speed: 2.2, station: 'haul', phase: 0 });
+      poles.add(() => {
+        const h = 0.5 + 0.5 * Math.sin(simT * 2.2);
+        return [groundW(haul, x, 1.05 - h * 0.25, -3.75), groundW(haul, x * 0.8, 0.12, -2.95)];
+      }, 'haul');
+      void p;
+    });
+    addPerson({ parent: haul, x: 0.3, z: 40.5, yaw: Math.PI, pose: 'point', station: 'haul' });
+    addPerson({ parent: haul, x: -5.6, z: 9, yaw: 0, pose: 'walk', speed: 3.9, station: 'haul' });
+    addPerson({ parent: haul, x: 5.4, z: 2, yaw: 0, pose: 'walk', speed: 3.9, station: 'haul' });
+    stations.haul = {
+      group: haul, extras: [rails, sleepers],
+      update(t) {
+        const s = S0 - ((t * V) % (S0 - S1));
+        const c = posAt(s);
+        haul.position.set(c.x, heightAt(c.x, c.z) + 0.16, c.z); haul.rotation.y = yaw;
+        const f = V3(c.x - AX * 3, 0, c.z - AZ * 3), b = V3(c.x + AX * 3, 0, c.z + AZ * 3);
+        sled.rotation.x = -Math.atan2(heightAt(f.x, f.z) - heightAt(b.x, b.z), 6);
+        haul.updateMatrixWorld(true);
+        phaseState.haul = 'La slitta avanza sui binari: mancano circa ' + Math.round(s - 30) + ' m al cerchio';
+      },
+      view() { return { pos: W(haul, 16, 9, -10), target: W(haul, 0, 1, 12), follow: haul }; },
+    };
+  }
+
+  /* ---------- 2. LAVORAZIONE della pietra ---------- */
+  {
+    const g = makeFrame(27, 175 * D2R);
+    const st = makeStone(2.1, 5.4, 1.12, { seed: 17, color: 0xb6ae9e, rough: 0.05, taper: 0.06 });
+    st.rotateX(Math.PI / 2); st.translate(0, 0.38 + 0.56, -2.7);
+    g.add(mesh(st, sarsenMat));
+    [-2.0, 0, 2.0].forEach(z => { const b = log(1.8, 0.17); b.position.set(0, 0.17, z); g.add(b); });
+    const raw = mesh(makeStone(2.4, 6.0, 1.3, { seed: 23, weathered: true, color: 0x998d77, rough: 0.2 }), sarsenMat);
+    raw.rotation.set(Math.PI / 2, 0, 0.3); raw.position.set(6.5, 0.6, -1.5); g.add(raw);
+    // schegge e mazzuoli consumati
+    const chips = new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1, 0), new THREE.MeshStandardMaterial({ map: stoneTex, color: 0xbdb5a5, roughness: 0.95 }), 320);
+    const dm = new THREE.Object3D();
+    for (let i = 0; i < 320; i++) {
+      const a = rand() * 6.28, r = rr(1.0, 4.2) * (i < 12 ? 0.9 : 1);
+      dm.position.set(Math.cos(a) * r * 0.8, 0.02, Math.sin(a) * r * 1.3);
+      const s = i < 12 ? rr(0.12, 0.2) : rr(0.025, 0.09); dm.scale.set(s, s * 0.6, s); dm.rotation.set(rand() * 3, rand() * 3, 0); dm.updateMatrix();
+      chips.setMatrixAt(i, dm.matrix);
+    }
+    chips.castShadow = chips.receiveShadow = true; g.add(chips);
+    const men = [];
+    [[-1.55, -2.0], [1.55, -1.6], [-1.55, 0.3], [1.55, 0.5], [-1.55, 2.2], [1.55, 2.3]].forEach(([x, z], i) => {
+      men.push(addPerson({ parent: g, x, z, yaw: x > 0 ? -Math.PI / 2 : Math.PI / 2, pose: 'pound', tool: true, station: 'shape', phase: i * 1.7 }));
+    });
+    men.push(addPerson({ parent: g, x: 0.1, y: 1.5, z: 1.2, yaw: Math.PI, pose: 'pound', tool: true, station: 'shape', snap: false, phase: 0.7 }));
+    addPerson({ parent: g, x: 3.6, z: 3.4, yaw: -2.4, pose: 'point', station: 'shape' });
+    stations.shape = {
+      group: g, update() { phaseState.shape = 'Martellatura con mazzuoli di sarsen: la superficie viene spianata colpo dopo colpo'; },
+      view() { return { pos: W(g, -7.5, 4.2, 7.5), target: W(g, 0, 0.9, 0) }; },
+    };
+  }
+
+  /* ---------- 3. INNALZAMENTO DEL PIEDRITTO ---------- */
+  {
+    const g = makeFrame(R_SARSEN, RAISE_PHI, 0);
+    const gear = new THREE.Group(); g.add(gear);
+    const stone = makeUpright(12);
+    stone.geometry.dispose();
+    stone.geometry = makeStone(2.1, 5.7, 1.1, { seed: 12 * 7.31 + 3, taper: 0.07, rough: 0.07 });
+    stone.children.forEach(c => { c.position.y = 5.68; });
+    g.add(stone);
+    const sled = sledge(5.9, 1.6); gear.add(sled);
+    // binari verso la buca
+    [-0.8, 0.8].forEach(x => { const r = mesh(new THREE.BoxGeometry(0.22, 0.16, 12.5), woodMat); r.position.set(x, 0.08, 10.0); gear.add(r); });
+    for (let z = 4.2; z < 16; z += 1.1) { const s = mesh(new THREE.BoxGeometry(2.5, 0.12, 0.22), barkMat); s.position.set(0, 0.0, z); gear.add(s); }
+    // pali che foderano la parete verticale della buca
+    for (let x = -1.2; x <= 1.21; x += 0.3) { const p = mesh(new THREE.CylinderGeometry(0.065, 0.075, 2.3, 7), barkMat); p.position.set(x, -0.5, -0.82); gear.add(p); }
+    // incastellatura ad A (capra)
+    const apex = V3(0, 6.4, -2.3);
+    [-2.1, 2.1].forEach(x => gear.add(cylBetween(V3(x, 0, -3.7), apex.clone().add(V3(x * 0.04, 0.25, 0)), 0.13)));
+    gear.add(cylBetween(V3(-1.2, 3.0, -3.1), V3(1.2, 3.0, -3.1), 0.08));
+    // cumulo di gesso di scavo
+    const heap = mesh(new THREE.SphereGeometry(1, 16, 10), chalkMat); heap.scale.set(2.3, 0.85, 1.7); heap.position.set(3.8, -0.25, 1.4); gear.add(heap);
+    const heap2 = heap.clone(); heap2.position.set(-3.9, -0.3, 2.2); heap2.scale.set(1.8, 0.7, 1.5); gear.add(heap2);
+    // riempimento della buca
+    const fill = mesh(new THREE.BoxGeometry(2.85, 1, 4.6).translate(0, -0.5, 1.55), new THREE.MeshStandardMaterial({ map: soilTex, normalMap: soilN, color: 0xcfc4ad, roughness: 1 }));
+    g.add(fill);
+
+    const T = 48;
+    const thetaB = 26 * D2R;
+    const stoneTop = (B, th, x) => V3(x, B.y + Math.sin(th) * 5.55, B.z + Math.cos(th) * 5.55);
+    const stateAt = tc => {
+      let B = V3(0, 0.99, 9.5), th = 0, fillY = -1.62, ph = 0;
+      if (tc < 12) { const u = easeIO(tc / 12); B.z = lerp(9.5, 0.7, u); ph = 0; }
+      else if (tc < 16) { const u = Math.pow((tc - 12) / 4, 1.7); B.set(0, lerp(0.99, -1.2, u), lerp(0.7, -0.15, u)); th = thetaB * u; ph = 1; }
+      else if (tc < 34) { const u = easeIO((tc - 16) / 18); B.set(0, lerp(-1.2, -1.6, u), lerp(-0.15, -0.2, u)); th = lerp(thetaB, Math.PI / 2, u); ph = 2; }
+      else { B.set(0, -1.6, -0.2); th = Math.PI / 2; fillY = tc < 42 ? lerp(-1.62, -0.04, (tc - 34) / 8) : -0.04; ph = tc < 42 ? 3 : 4; }
+      return { B, th, fillY, ph };
+    };
+    const d0 = stoneTop(V3(0, -1.2, -0.15), thetaB, 0).distanceTo(apex);
+    let cur = stateAt(0), forceFinal = false;
+    // squadre alle funi (dentro il cerchio)
+    const pullers = [];
+    [-0.75, 0.75].forEach((x, j) => {
+      for (let m = 0; m < 7; m++) pullers.push(addPerson({ parent: g, x: x + (m % 2 ? 0.28 : -0.28), z: -6.3 - m * 0.95, yaw: 0, pose: 'idle', station: 'raise', baseZ: -6.3 - m * 0.95 }));
+      addRope(() => {
+        const top = stoneTop(cur.B, cur.th, x * 0.55);
+        const last = pullers[j * 7 + 6];
+        return [W(g, top.x, top.y, top.z), W(g, x * 0.15, apex.y + 0.15, apex.z), W(g, x, 1.05, -6.0 + pullers[j * 7].z + 6.3), W(g, x, 1.0, last.z - 1.5)];
+      }, 'raise');
+    });
+    const guys = [[-7.5, 2.0], [7.5, 2.0]].map(([x, z]) => addPerson({ parent: g, x, z, yaw: x > 0 ? -Math.PI / 2 : Math.PI / 2, pose: 'idle', station: 'raise' }));
+    guys.forEach(p => addRope(() => { const top = stoneTop(cur.B, cur.th, 0); return [W(g, top.x, top.y - 0.4, top.z), W(g, p.x + (p.x > 0 ? -0.5 : 0.5), 1.15, p.z)]; }, 'raise'));
+    const levers = [-0.9, -0.3, 0.3, 0.9].map(x => addPerson({ parent: g, x, z: 16, yaw: Math.PI, pose: 'lever', speed: 2.2, station: 'raise', phase: 0 }));
+    levers.forEach(p => poles.add(() => {
+      if (cur.ph > 0) return null;
+      const h = 0.5 + 0.5 * Math.sin(simT * 2.2);
+      return [W(g, p.x, 1.05 - h * 0.25, p.z - 0.45), W(g, p.x * 0.7, 0.75, cur.B.z + 5.45)];
+    }, 'raise'));
+    const packers = [[-1.95, -0.2], [1.95, -0.2], [-0.9, 2.9], [0.9, 2.9]].map(([x, z]) => addPerson({ parent: g, x, z, yaw: Math.atan2(-x, -z + -0.2), pose: 'idle', station: 'raise', tool: true }));
+    addPerson({ parent: g, x: -4.2, z: -4.5, yaw: 0.9, pose: 'point', station: 'raise' });
+
+    const PH = [
+      '1/5 · Con leve e funi la pietra scivola sulla slitta fino al bordo della buca',
+      '2/5 · Il baricentro supera il bordo: la pietra si inclina e scivola nella buca',
+      '3/5 · Le squadre tirano le funi sopra la capra: il piedritto si raddrizza',
+      '4/5 · La buca si riempie di schegge di sarsen e gesso, battuti con i mazzuoli',
+      '5/5 · Il piedritto è in piedi: sporge circa 4 m, 1,5 m sono interrati',
+    ];
+    stations.raise = {
+      group: gear,
+      setFinal(v) { forceFinal = v; },
+      update(t) {
+        const tc = forceFinal ? T - 1 : t % T;
+        cur = stateAt(tc);
+        stone.position.copy(cur.B); stone.rotation.set(Math.PI / 2 - cur.th, 0, 0);
+        sled.position.set(0, 0.16, Math.max(3.7, cur.B.z) + 2.95);
+        fill.position.y = cur.fillY; fill.scale.y = Math.max(0.01, cur.fillY + 1.7);
+        const shift = cur.ph >= 2 ? stoneTop(cur.B, cur.th, 0).distanceTo(apex) - d0 : 0;
+        pullers.forEach(p => { p.z = p.baseZ + shift; p.pose = cur.ph === 2 ? 'haul' : 'idle'; p.speed = 1; });
+        guys.forEach(p => { p.pose = cur.ph === 2 ? 'haul' : 'idle'; });
+        levers.forEach(p => { p.z = cur.ph === 0 ? cur.B.z + 6.3 : 7.0; p.pose = cur.ph === 0 ? 'lever' : 'idle'; });
+        packers.forEach(p => { p.pose = cur.ph === 3 ? 'pound' : 'idle'; });
+        phaseState.raise = PH[cur.ph];
+        if (cur.ph === 1 && rand() < 0.3) dust.emit(W(g, 0, -0.6, 0.6), 4, 0.8, 1.2);
+      },
+      view() { return { pos: W(g, -7.5, 5.2, 12.5), target: W(g, 0, 1.0, 2.2) }; },
+    };
+  }
+
+  /* ---------- 4. ARCHITRAVE CON LA CATASTA DI TRONCHI ---------- */
+  {
+    const phi = lintelPhi(11);
+    const g = makeFrame(R_SARSEN, phi);
+    const gear = new THREE.Group(); g.add(gear);
+    const lintel = makeCircleLintel(11); g.add(lintel);
+    const CZ = 2.45, LH = 0.24, NL = 19;
+    const layers = [];
+    for (let n = 0; n < NL; n++) {
+      const L = new THREE.Group(); L.position.y = 0.12 + n * LH;
+      if (n % 2 === 0) [-1.05, 1.05].forEach(dz => { const lg = log(3.7, 0.125); lg.position.set(0, 0, CZ + dz); L.add(lg); });
+      else [-1.5, 1.5].forEach(dx => { const lg = log(2.9, 0.125); lg.rotation.y = Math.PI / 2; lg.position.set(dx, 0, CZ); L.add(lg); });
+      gear.add(L); layers.push(L);
+    }
+    // catasta di tronchi pronti
+    for (let i = 0; i < 9; i++) { const lg = log(3.6, 0.13); lg.position.set(-4.6 + (i % 4) * 0.27 + (i >= 4 ? 0.13 : 0) + (i >= 7 ? 0.13 : 0), 0.13 + (i >= 4 ? 0.23 : 0) + (i >= 7 ? 0.23 : 0), 5.0); lg.rotation.y = 0.2; gear.add(lg); }
+    const T = 60;
+    let st = { top: LH, ph: 0 }, forceFinal = false;
+    const crew = [-1.35, -0.45, 0.45, 1.35].map(x => addPerson({ parent: g, x, z: 3.45, yaw: Math.PI, pose: 'lever', speed: 2.2, snap: false, station: 'crib', phase: 0 }));
+    crew.forEach(p => poles.add(() => {
+      if (st.ph > 1) return null;
+      const h = 0.5 + 0.5 * Math.sin(simT * 2.2);
+      return [W(g, p.x, st.top + 1.0 - h * 0.25, 3.05), W(g, p.x * 1.15, st.top + 0.02, 2.15)];
+    }, 'crib'));
+    poles.add(() => [W(g, 2.9, 0.05, 4.6), W(g, 1.95, st.top + 0.5, 3.4)], 'crib'); // scala ricavata da un tronco
+    const carriers = [0, 1].map(i => addPerson({
+      parent: g, pose: 'carry', speed: 4.6, station: 'crib', phase: i * 3, log: true, female: false,
+      tick(p, t) { const u = ((t * 0.09 + i * 0.5) % 1), k = u < 0.5 ? u * 2 : 2 - u * 2; p.x = lerp(-4.2, 2.6, k); p.z = lerp(4.6, 4.1, k); p.yaw = u < 0.5 ? Math.PI / 2 : -Math.PI / 2; },
+    }));
+    void carriers;
+    addPerson({ parent: g, x: 4.4, z: 6.8, yaw: -2.6, pose: 'point', station: 'crib' });
+    stations.crib = {
+      group: gear,
+      setFinal(v) { forceFinal = v; },
+      update(t) {
+        const tc = forceFinal ? T - 1 : t % T;
+        let layersN, y, z = CZ, tilt = 0, ph;
+        if (tc < 38) {
+          layersN = Math.min(NL, 1 + Math.floor(tc / 2)); const u = (tc / 2) % 1;
+          y = layersN * LH + 0.1 * Math.abs(Math.sin(u * Math.PI * 2)); tilt = layersN < NL ? 0.09 * Math.sin(u * Math.PI * 2) : 0; ph = 0;
+        } else if (tc < 48) { layersN = NL; y = NL * LH; z = lerp(CZ, 0, easeIO((tc - 38) / 10)); ph = 1; }
+        else if (tc < 52) { layersN = NL; y = lerp(NL * LH, 4.1, easeIO((tc - 48) / 4)); z = 0; ph = 2; }
+        else { layersN = NL; y = 4.1; z = 0; ph = 3; }
+        layers.forEach((L, n) => { L.visible = n < layersN; });
+        st = { top: layersN * LH, ph };
+        lintel.position.set(0, y, z); lintel.rotation.set(0, 0, tilt);
+        crew.forEach(p => { p.y = st.top; p.pose = ph <= 1 ? 'lever' : 'idle'; });
+        phaseState.crib = ph === 0
+          ? '1/3 · Leve alternate alzano un\'estremità, sotto si infila un tronco · strato ' + layersN + ' di ' + NL
+          : ph === 1 ? '2/3 · In cima alla catasta l\'architrave scivola verso i piedritti'
+            : ph === 2 ? '3/3 · Le mortase scavate sotto l\'architrave scendono sui tenoni' : 'Fatto: l\'architrave è incastrato. Ora la catasta verrà smontata';
+      },
+      view() { return { pos: W(g, 9.0, 6.0, 11.0), target: W(g, 0, 2.4, 1.6) }; },
+    };
+  }
+
+  /* ---------- 5. TERRAPIENO intorno ai piedritti ---------- */
+  {
+    const phi = lintelPhi(21);
+    const g = makeFrame(R_SARSEN, phi);
+    const gear = new THREE.Group(); g.add(gear);
+    const lintel = makeCircleLintel(21); g.add(lintel);
+    const TOPM = 4.0, PX0 = 3.4, PZ0 = -1.6, PZ1 = 2.4, RW = 2.4, RE = 16;
+    const rampTop = z => (z <= PZ1 ? TOPM : Math.max(0, TOPM * (RE - z) / (RE - PZ1)));
+    const slope = Math.atan(TOPM / (RE - PZ1));
+    // forma del cumulo: piattaforma attorno ai due piedritti + rampa verso l'esterno
+    function moundH(x, z) {
+      const dx = Math.max(0, Math.abs(x) - PX0), dz = Math.max(0, PZ0 - z, z - PZ1);
+      const h1 = TOPM - Math.hypot(dx, dz) * 1.2;
+      const h2 = z > PZ1 && z < RE + 3 ? rampTop(z) - Math.max(0, Math.abs(x) - RW) * 1.2 : -1;
+      return Math.max(0, h1, h2);
+    }
+    const mg = new THREE.PlaneGeometry(20, 28, 80, 112).rotateX(-Math.PI / 2).translate(0, 0, 4);
+    const mp = mg.attributes.position;
+    for (let i = 0; i < mp.count; i++) {
+      const x = mp.getX(i), z = mp.getZ(i), h = moundH(x, z);
+      mp.setY(i, h > 0.001 ? h + fbm3(x * 0.8, 1.3, z * 0.8, 2) * 0.06 * Math.min(1, h) - 0.04 : -0.35);
+    }
+    mg.computeVertexNormals();
+    const muv = mg.attributes.uv; for (let i = 0; i < muv.count; i++) muv.setXY(i, mp.getX(i) * 0.3, mp.getZ(i) * 0.3);
+    const mound = mesh(mg, new THREE.MeshStandardMaterial({ map: soilTex, normalMap: soilN, color: 0xb9a786, roughness: 1 }));
+    gear.add(mound);
+    const rampLogs = new THREE.Group(); gear.add(rampLogs);
+    for (let z = PZ1 + 0.4; z < RE - 0.5; z += 0.9) { const lg = log(RW * 2 - 0.3, 0.09); lg.position.set(0, rampTop(z) + 0.04, z); rampLogs.add(lg); }
+    const sl = sledge(1.7, 2.6); gear.add(sl);
+
+    const T = 72;
+    let cur = { zc: RE + 1, ph: 0, s: 0, y: 0.32 }, forceFinal = false;
+    // portatori di ceste: costruiscono e poi smontano il terrapieno
+    const carriers = [];
+    for (let i = 0; i < 8; i++) {
+      carriers.push(addPerson({
+        parent: g, pose: 'carry', speed: 4.4, snap: false, station: 'earth', phase: i * 1.3, basket: true,
+        tick(p, t) {
+          const u = (t * 0.045 + i / 8) % 1, k = u < 0.5 ? u * 2 : 2 - u * 2;
+          const side = i % 2 ? 1 : -1;
+          p.x = i < 4 ? lerp(-1.6, 1.6, (i % 4) / 3) : side * lerp(4.5, 3.6, k);
+          p.z = i < 4 ? lerp(RE + 3, PZ1 + 0.6, k) : lerp(-3.5, 1.0, (i % 4) / 3);
+          if (i >= 4) { p.x = side * lerp(6.5, 3.0, k); }
+          p.y = moundH(p.x, p.z) * cur.s;
+          p.yaw = i < 4 ? (u < 0.5 ? Math.PI : 0) : (u < 0.5 ? -side * Math.PI / 2 : side * Math.PI / 2);
+        },
+      }));
+    }
+    // squadra dell'architrave
+    const pushers = [[-0.9, 1.4], [0.9, 1.4], [-0.3, 2.3], [0.3, 2.3]].map(([x, dz]) => addPerson({ parent: g, x, z: RE + 2, yaw: Math.PI, pose: 'lever', speed: 2.2, snap: false, station: 'earth', dz, phase: 0 }));
+    pushers.forEach(p => poles.add(() => {
+      if (cur.ph < 1 || cur.ph > 2) return null;
+      const h = 0.5 + 0.5 * Math.sin(simT * 2.2);
+      return [W(g, p.x, p.y + 1.0 - h * 0.25, p.z - 0.45), W(g, p.x * 0.8, rampTop(cur.zc + 0.6) + 0.2, cur.zc + 0.62)];
+    }, 'earth'));
+    const haulers = [-1.0, 1.0, -0.35, 0.35].map((x, k) => addPerson({ parent: g, x, z: 0, yaw: 0, pose: 'haul', snap: false, station: 'earth', k, bx: x }));
+    haulers.forEach(p => addRope(() => (cur.ph < 1 || cur.ph > 2 ? null : [W(g, p.bx * 0.6, cur.y + 0.45, cur.zc - 0.55), W(g, p.x, p.y + 1.05, p.z + 0.35)]), 'earth'));
+    addPerson({ parent: g, x: 6.5, z: 18.5, yaw: -2.5, pose: 'point', station: 'earth' });
+
+    const PH = [
+      '1/5 · Con ceste di terra e gesso si costruisce un terrapieno intorno ai due piedritti',
+      '2/5 · L\'architrave sale la rampa di terra su una slitta, spinto con leve e tirato con funi',
+      '3/5 · Dalla piattaforma in cima scivola sopra i tenoni e viene calato al suo posto',
+      '4/5 · La terra viene portata via, cesta dopo cesta',
+      '5/5 · Finito: l\'architrave poggia sui piedritti, il terrapieno è sparito',
+    ];
+    stations.earth = {
+      group: gear,
+      setFinal(v) { forceFinal = v; },
+      update(t) {
+        const tc = forceFinal ? T - 1 : t % T;
+        let s, zc, y, rx = 0, ph;
+        if (tc < 14) { s = easeIO(tc / 14); zc = RE + 1.2; y = 0.32; ph = 0; }
+        else if (tc < 38) {
+          s = 1; zc = lerp(RE + 1.2, 1.8, (tc - 14) / 24); ph = 1;
+          y = (zc >= RE ? 0 : rampTop(zc)) + 0.32;
+          rx = zc > PZ1 + 0.6 && zc < RE - 0.4 ? slope : 0;
+        } else if (tc < 46) {
+          s = 1; ph = 2;
+          zc = lerp(1.8, 0, easeIO(Math.min(1, (tc - 38) / 6)));
+          y = tc < 44 ? TOPM + 0.35 : lerp(TOPM + 0.35, 4.1, (tc - 44) / 2);
+        } else if (tc < 60) { s = 1 - easeIO((tc - 46) / 14); zc = 0; y = 4.1; ph = 3; }
+        else { s = 0; zc = 0; y = 4.1; ph = 4; }
+        cur = { zc, ph, s, y };
+        mound.visible = s > 0.01; mound.scale.y = Math.max(0.01, s); mound.position.y = (Math.min(1, s * 4) - 1) * 0.5;
+        rampLogs.visible = s > 0.99 && ph >= 1 && ph <= 2;
+        lintel.position.set(0, y, zc); lintel.rotation.set(rx, 0, 0);
+        const sz = Math.max(zc, 1.8);
+        sl.visible = ph <= 2;
+        sl.position.set(0, (sz >= RE ? 0 : rampTop(sz)) + 0.02, sz); sl.rotation.x = sz > PZ1 + 0.6 && sz < RE - 0.4 ? slope : 0;
+        const crew = ph === 1 || ph === 2;
+        carriers.forEach(p => { p.visible = ph === 0 || ph === 3; });
+        pushers.forEach(p => {
+          p.visible = crew;
+          p.z = Math.min(RE + 2.5, Math.max(zc, 1.8) + p.dz); p.y = p.z >= RE ? 0 : rampTop(p.z);
+          p.pose = ph === 1 ? 'lever' : 'idle';
+        });
+        haulers.forEach((p, k) => {
+          p.visible = crew;
+          let z = zc - 2.6 - Math.floor(k / 2) * 1.0, x = p.bx;
+          if (z < 0.9) { z = 0.9 + (k % 2) * 0.6; x = p.bx < 0 ? -2.9 : 2.9; }
+          p.z = z; p.x = x; p.y = z >= RE ? 0 : rampTop(z); p.pose = ph === 1 ? 'haul' : 'idle';
+        });
+        phaseState.earth = PH[ph];
+      },
+      view() { return { pos: W(g, 17.5, 8.5, 9.5), target: W(g, 0, 2.0, 6.5) }; },
+    };
+  }
+
+  /* ---------- 6. RAMPA per l'architrave del Grande Trilite ---------- */
+  {
+    const t0 = trilithons[0];
+    const g = makeFrame(t0.r, t0.phi);
+    const gear = new THREE.Group(); g.add(gear);
+    const TOP = 7.3, Z0 = 0.8, ZF = 3.0, ZE = 25, HW = 2.9;
+    const rampH = z => (z <= ZF ? TOP : Math.max(0, TOP * (ZE - z) / (ZE - ZF)));
+    const slope = Math.atan(TOP / (ZE - ZF));
+    const shape = new THREE.Shape([new THREE.Vector2(Z0, -0.3), new THREE.Vector2(Z0, TOP), new THREE.Vector2(ZF, TOP), new THREE.Vector2(ZE, -0.3)]);
+    const rg = new THREE.ExtrudeGeometry(shape, { depth: HW * 2, bevelEnabled: false });
+    rg.rotateY(-Math.PI / 2); rg.translate(HW, 0, 0);
+    const uvs = rg.attributes.uv; for (let i = 0; i < uvs.count; i++) uvs.setXY(i, uvs.getX(i) * 0.4, uvs.getY(i) * 0.4);
+    gear.add(mesh(rg, new THREE.MeshStandardMaterial({ map: soilTex, normalMap: soilN, color: 0xc9bb9c, roughness: 1 })));
+    for (let z = Z0 + 0.3; z < ZE - 0.5; z += 0.85) { const lg = log(HW * 2 - 0.1, 0.1); lg.position.set(0, rampH(z) + 0.06, z); gear.add(lg); }
+    [-HW, HW].forEach(x => {
+      gear.add(cylBetween(V3(x, TOP + 0.1, Z0), V3(x, 0.0, ZE), 0.13));
+      for (let z = Z0 + 0.2; z < ZE - 2; z += 2.6) gear.add(cylBetween(V3(x * 1.02, -0.2, z), V3(x * 1.02, rampH(z) + 0.5, z), 0.1));
+    });
+    const lintel = mesh(makeStone(5.0, 1.0, 1.15, { seed: 99, round: 0.15, rough: 0.04, sy: 3 }), sarsenMat);
+    g.add(lintel);
+    const sl = sledge(1.9, 3.2); gear.add(sl);
+    const T = 54;
+    let cur = { zc: 22, ph: 0 }, forceFinal = false;
+    const pushers = [];
+    [[-1.8, 1.45], [0, 1.45], [1.8, 1.45], [-0.9, 2.35], [0.9, 2.35], [2.3, 2.35]].forEach(([x, dz]) => {
+      const p = addPerson({ parent: g, x, z: 0, yaw: Math.PI, pose: 'lever', speed: 2.2, snap: false, station: 'ramp', dz, phase: 0 });
+      pushers.push(p);
+      poles.add(() => {
+        if (cur.ph > 1) return null;
+        const h = 0.5 + 0.5 * Math.sin(simT * 2.2);
+        return [W(g, p.x, p.y + 1.0 - h * 0.25, p.z - 0.45), W(g, p.x * 0.8, rampH(cur.zc + 0.6) + 0.2, cur.zc + 0.62)];
+      }, 'ramp');
+    });
+    const haulers = [-1.0, 1.0, -0.35, 0.35].map((x, k) => addPerson({ parent: g, x, z: 2, yaw: 0, pose: 'haul', snap: false, station: 'ramp', k, bx: x }));
+    haulers.forEach(p => addRope(() => cur.ph > 1 ? null : [W(g, p.bx * 0.6, lintelY() + 0.5, cur.zc - 0.6), W(g, p.x, p.y + 1.05, p.z + 0.35)], 'ramp'));
+    addPerson({ parent: g, x: -4.5, z: 23, yaw: 2.6, pose: 'point', station: 'ramp' });
+    addPerson({ parent: g, x: 4.2, z: 21, yaw: -2.2, pose: 'idle', station: 'ramp' });
+    let ly = 0;
+    const lintelY = () => ly;
+    const PH = [
+      '1/3 · L\'architrave sale la rampa di terra e gesso su una slitta, spinto con leve e tirato con funi',
+      '2/3 · Dalla cima della rampa viene fatto scivolare sopra i due piedritti',
+      '3/3 · Mortase e tenoni si incastrano: il Grande Trilite è completo (circa 7,3 m)',
+    ];
+    stations.ramp = {
+      group: gear,
+      setFinal(v) { forceFinal = v; },
+      update(t) {
+        const tc = forceFinal ? T - 1 : t % T;
+        let zc, y, rx, ph;
+        if (tc < 34) { zc = lerp(22.5, 2.0, tc / 34); y = rampH(zc) + 0.32; rx = zc > ZF + 0.6 ? slope : slope * clamp((zc - ZF + 0.6) / 1.2, 0, 1); ph = 0; }
+        else if (tc < 42) { zc = lerp(2.0, 0, easeIO((tc - 34) / 8)); y = TOP + 0.32; rx = 0; ph = 1; }
+        else if (tc < 46) { zc = 0; y = lerp(TOP + 0.32, TOP, (tc - 42) / 4); rx = 0; ph = 2; }
+        else { zc = 0; y = TOP; rx = 0; ph = 2; }
+        cur = { zc, ph }; ly = y;
+        lintel.position.set(0, y, zc); lintel.rotation.set(rx, 0, 0);
+        const sz = Math.max(zc, 2.0); sl.position.set(0, rampH(sz) + 0.02, sz); sl.rotation.x = sz > ZF + 0.6 ? slope : 0;
+        pushers.forEach(p => { p.z = Math.min(ZE - 0.5, Math.max(zc, 2.0) + p.dz); p.y = rampH(p.z); p.pose = ph === 0 ? 'lever' : 'idle'; });
+        haulers.forEach((p, k) => {
+          let z = zc - 2.6 - Math.floor(k / 2) * 1.0, x = p.bx;
+          if (z < 1.15) { z = 1.15 + (k % 2) * 0.6; x = (p.bx < 0 ? -2.35 : 2.35); }
+          p.z = z; p.x = x; p.y = rampH(z); p.pose = ph === 0 ? 'haul' : 'idle';
+        });
+        phaseState.ramp = PH[ph];
+      },
+      view() { return { pos: W(g, -19, 10, 13), target: W(g, 0, 4.5, 7) }; },
+    };
+  }
+
+  /* ---------- 6. ACCAMPAMENTO (case come a Durrington Walls) ---------- */
+  {
+    const g = makeFrame(96, -118 * D2R);
+    const thatchTex = canvasTex(256, (c, s) => {
+      c.fillStyle = '#b39a64'; c.fillRect(0, 0, s, s);
+      for (let i = 0; i < 2600; i++) { c.strokeStyle = rand() < 0.5 ? '#7d6a40' : '#d2bd86'; c.globalAlpha = 0.5 * rand(); const x = rand() * s, y = rand() * s; c.beginPath(); c.moveTo(x, y); c.lineTo(x + rr(-1, 1), y + rr(6, 16)); c.stroke(); }
+      c.globalAlpha = 1;
+    });
+    const thatch = new THREE.MeshStandardMaterial({ map: thatchTex, color: 0xb8a070, roughness: 1 });
+    const daub = new THREE.MeshStandardMaterial({ map: soilTex, normalMap: soilN, color: 0xa48d6c, roughness: 1 });
+    [[-8, -4, 0.3], [7, -6, -0.4], [0, 9, 0.1]].forEach(([x, z, r]) => {
+      const h = new THREE.Group(); h.position.set(x, 0, z); h.rotation.y = r;
+      const wall = mesh(new THREE.BoxGeometry(5, 1.7, 5), daub); wall.position.y = 0.85; h.add(wall);
+      const roof = mesh(new THREE.ConeGeometry(4.3, 3.6, 4, 1), thatch); roof.rotation.y = Math.PI / 4; roof.position.y = 1.7 + 1.75; h.add(roof);
+      const door = mesh(new THREE.BoxGeometry(1.0, 1.4, 0.1), new THREE.MeshStandardMaterial({ color: 0x2a221a })); door.position.set(0, 0.7, 2.51); h.add(door);
+      g.add(h);
+    });
+    const fire = new THREE.Group(); g.add(fire);
+    for (let i = 0; i < 6; i++) { const l = log(1.2, 0.07); l.rotation.y = i; l.rotation.z = 0.3; l.position.y = 0.15; fire.add(l); }
+    // fiamma: lingue di fuoco sovrapposte, brace e pietre del focolare
+    const flame = new THREE.Group(); flame.position.y = 0.12; fire.add(flame);
+    const tongues = [[0xff7a1a, 0.26, 0.85, 0], [0xffb03a, 0.18, 0.7, 1.7], [0xffe08a, 0.1, 0.5, 3.1], [0xff8c2a, 0.15, 0.6, 4.4]].map(([c, r, h, ph], i) => {
+      const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, 7, 1, true).translate(0, h / 2, 0), new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.75, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }));
+      m.position.set(i ? Math.cos(ph) * 0.12 : 0, 0, i ? Math.sin(ph) * 0.12 : 0); m.userData.ph = ph; flame.add(m); return m;
+    });
+    const embers = new THREE.Mesh(new THREE.CircleGeometry(0.45, 16).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xff5a10, toneMapped: false }));
+    embers.position.y = 0.04; fire.add(embers);
+    for (let i = 0; i < 9; i++) { const a = i / 9 * Math.PI * 2, st = mesh(new THREE.DodecahedronGeometry(0.13, 0), chalkMat); st.position.set(Math.cos(a) * 0.62, 0.05, Math.sin(a) * 0.62); fire.add(st); }
+    // tronchi per sedersi intorno al fuoco
+    for (let i = 0; i < 7; i++) { const a = (i / 7) * Math.PI * 2, lg = log(0.9, 0.17); lg.position.set(Math.cos(a) * 2.15, 0.2, Math.sin(a) * 2.15); lg.rotation.y = -a + Math.PI / 2; g.add(lg); }
+    for (let i = 0; i < 7; i++) {
+      const a = (i / 7) * Math.PI * 2;
+      addPerson({ parent: g, x: Math.cos(a) * 2.1, z: Math.sin(a) * 2.1, yaw: Math.atan2(-Math.cos(a), -Math.sin(a)), pose: 'sit', station: 'camp', female: i % 3 === 1 });
+    }
+    addPerson({ parent: g, x: 3.5, z: 2, yaw: -2, pose: 'idle', station: 'camp' });
+    addPerson({ parent: g, x: -3.2, z: 4.2, yaw: 2.4, pose: 'idle', station: 'camp', female: true, iv: 1 });
+    // una donna porta una cesta, due bambini giocano tra le case
+    addPerson({
+      parent: g, pose: 'carry', speed: 4.6, station: 'camp', female: true, basket: true,
+      tick(p, t) { const a = t * 0.12; p.x = Math.cos(a) * 9; p.z = Math.sin(a) * 6 + 2; p.yaw = Math.atan2(-Math.sin(a) * 9, Math.cos(a) * 6); },
+    });
+    [0, 1].forEach(i => addPerson({
+      parent: g, pose: 'walk', speed: 7.5, station: 'camp', child: true, beard: false,
+      tick(p, t) { const a = t * 0.45 + i * Math.PI; p.x = 4.5 + Math.cos(a) * 2.6; p.z = -1.5 + Math.sin(a * 1.0) * 2.0; p.yaw = Math.atan2(-Math.sin(a) * 2.6, Math.cos(a) * 2.0); },
+    }));
+    // maiali (resti di grandi banchetti sono stati trovati a Durrington Walls)
+    const pigGeo = mergeGeos([
+      new THREE.SphereGeometry(0.42, 12, 8).scale(1, 0.8, 1.6).translate(0, 0.52, 0),
+      new THREE.SphereGeometry(0.22, 10, 8).scale(1, 1, 1.3).translate(0, 0.58, 0.72),
+      new THREE.CylinderGeometry(0.09, 0.1, 0.14, 8).rotateX(Math.PI / 2).translate(0, 0.53, 1.0),
+      ...[[-0.2, -0.4], [0.2, -0.4], [-0.2, 0.4], [0.2, 0.4]].map(([x, z]) => new THREE.CylinderGeometry(0.06, 0.05, 0.36, 6).translate(x, 0.18, z)),
+    ]);
+    const pigMat = new THREE.MeshStandardMaterial({ color: 0x4d3a2c, roughness: 1 });
+    const pigs = [0, 1, 2].map(i => { const m = mesh(pigGeo, pigMat); g.add(m); return { m, a: i * 2, r: 5 + i }; });
+    stations.camp = {
+      group: g,
+      update(t, dt) {
+        const ft = performance.now() / 1000;
+        tongues.forEach(m => { const p = m.userData.ph; m.scale.set(1 + Math.sin(ft * 11 + p) * 0.12, 1 + Math.sin(ft * 8.3 + p * 2) * 0.28, 1 + Math.cos(ft * 10 + p) * 0.12); m.rotation.y = ft * 0.7 + p; });
+        embers.material.color.setHSL(0.05, 1, 0.42 + Math.sin(ft * 5) * 0.04);
+        if (rand() < 0.5) smoke.emit(W(g, 0, 1.0, 0), 1, 0.15, 0.6);
+        pigs.forEach((p, i) => {
+          const a = p.a + t * 0.04 * (i % 2 ? 1 : -1);
+          const x = Math.cos(a) * p.r + 10, z = Math.sin(a) * p.r + 10;
+          const w = W(g, x, 0, z);
+          p.m.position.set(x, heightAt(w.x, w.z) - g.position.y, z);
+          p.m.rotation.y = a + (i % 2 ? 0 : Math.PI);
+        });
+        void dt;
+        phaseState.camp = 'Vita al campo: cibo, fuoco, riposo tra un turno di lavoro e l\'altro';
+      },
+      view() { return { pos: W(g, 16, 9, 18), target: W(g, 0, 1.2, 2) }; },
+    };
+  }
+
+  // ---------- persone che vanno e vengono ----------
+  {
+    const camp = polar(96, -118 * D2R), site = polar(26, -128 * D2R);
+    for (let i = 0; i < 5; i++) {
+      addPerson({
+        pose: i === 2 ? 'carry' : 'walk', speed: 5.2, station: 'site', off: rr(-2, 2), basket: i === 2,
+        tick(p, t) {
+          const u = (t * 0.008 + i * 0.2) % 1, k = u < 0.5 ? u * 2 : 2 - u * 2;
+          p.x = lerp(camp.x, site.x, k) + p.off; p.z = lerp(camp.z, site.z, k) + p.off;
+          p.yaw = Math.atan2(site.x - camp.x, site.z - camp.z) + (u < 0.5 ? 0 : Math.PI);
+        },
+      });
+    }
+    [[-30, 2], [22, -12], [-12, 26]].forEach(([x, z]) => addPerson({ x, z, yaw: rand() * 6, pose: 'idle', station: 'site' }));
+  }
+
+  /* =====================================================================
+     Parte 5: sole, telecamera, visite guidate, ciclo di animazione
+     ===================================================================== */
+  let simT = 0, speed = 1, paused = false;
+  const PERF = { st: 0, pe: 0, re: 0 };
+
+  // ----- sole nel giorno del solstizio d'estate -----
+  const sunDir = V3(0, 1, 0);
+  let sunS = 0.3;
+  let envDirty = true, envTimer = 1;
+  function setSun(s) {
+    sunS = clamp(s, 0, 1);
+    const A = lerp(49, 311, sunS) * D2R;
+    const hdeg = 66 * Math.sin(Math.PI * sunS) - 1.0, h = hdeg * D2R;
+    sunDir.set(Math.sin(A) * Math.cos(h), Math.sin(h), -Math.cos(A) * Math.cos(h)).normalize();
+    const day = smoothstep(-1, 22, hdeg);
+    sun.color.set(0xffa860).lerp(new THREE.Color(0xfff3e2), day);
+    sun.intensity = (0.2 + 2.7 * smoothstep(-1.5, 9, hdeg)) * (physSky ? 1.75 : 1);
+    hemi.intensity = physSky ? 0.25 + 0.35 * smoothstep(-4, 22, hdeg) : 0.55 + 0.65 * smoothstep(-4, 22, hdeg);
+    hemi.color.set(0xf0c8a0).lerp(new THREE.Color(0xc4d8f0), day);
+    skyUniforms.sunDir.value.copy(sunDir);
+    skyUniforms.topColor.value.set(0x2f4a78).lerp(new THREE.Color(0x3f72b5), day);
+    skyUniforms.horizonColor.value.set(0xf2b27c).lerp(new THREE.Color(0xcbd8e4), day);
+    skyUniforms.sunColor.value.set(0xffb070).lerp(new THREE.Color(0xfff1d0), day);
+    scene.fog.color.copy(skyUniforms.horizonColor.value);
+    clouds.children.forEach(c => c.material.color.set(0xffd2b0).lerp(new THREE.Color(0xffffff), day));
+    if (physSky) {
+      [physSky, envSky].forEach(sk => {
+        const u = sk.material.uniforms;
+        u.sunPosition.value.copy(sunDir); u.turbidity.value = lerp(9, 3.2, day); u.rayleigh.value = lerp(3.0, 1.15, day);
+        u.mieCoefficient.value = lerp(0.008, 0.004, day); u.mieDirectionalG.value = 0.82;
+      });
+      scene.fog.color.set(0xe9b48a).lerp(new THREE.Color(0xc6d3e0), day).multiplyScalar(lerp(0.6, 0.85, day));
+      scene.fog.near = 260; scene.fog.far = 2600;
+      clouds.children.forEach(c => c.material.color.multiplyScalar(lerp(0.9, 1.6, day)));
+      envDirty = true;
+    }
+  }
+  setSun(sunS);
+
+  // ----- controlli -----
+  const controls = new OrbitControls(camera, canvas);
+  controls.enableDamping = true; controls.dampingFactor = 0.08;
+  controls.maxPolarAngle = 1.52; controls.minDistance = 2.5; controls.maxDistance = 650;
+  controls.target.set(0, 2, 0);
+  let mode = 'orbit', follow = null, followLast = V3(0, 0, 0), fly = null, current = 'overview';
+  const walk = { yaw: 0, pitch: 0, keys: {}, touch: { f: 0, r: 0 }, eyeY: 0 };
+
+  // ostacoli per la passeggiata: le pietre in piedi
+  const colliders = [];
+  scene.updateMatrixWorld(true);
+  monument.traverse(o => {
+    if (!o.isMesh || !o.geometry.boundingSphere) return;
+    const c = o.geometry.boundingSphere.center.clone().applyMatrix4(o.matrixWorld);
+    const r = o.geometry.boundingSphere.radius;
+    if (r > 0.9 && c.y < 4) colliders.push({ x: c.x, z: c.z, r: Math.min(1.25, r * 0.42) });
+  });
+
+  // unisce le pietre ferme in un'unica geometria per materiale: centinaia di oggetti diventano pochi
+  function mergeStatic(group) {
+    group.updateMatrixWorld(true);
+    const inv = group.matrixWorld.clone().invert();
+    const byMat = new Map();
+    group.traverse(o => {
+      if (!o.isMesh || o.isInstancedMesh) return;
+      const g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone();
+      g.applyMatrix4(o.matrixWorld.clone().premultiply(inv));
+      if (!byMat.has(o.material)) byMat.set(o.material, []);
+      byMat.get(o.material).push(g);
+    });
+    const keep = group.children.filter(c => c.isInstancedMesh);
+    group.clear(); keep.forEach(c => group.add(c));
+    byMat.forEach((list, mat) => {
+      const names = ['position', 'normal', 'uv', 'color'].filter(a => list.some(g => g.attributes[a]));
+      const out = new THREE.BufferGeometry();
+      names.forEach(a => {
+        const size = a === 'uv' ? 2 : 3, arr = [];
+        list.forEach(g => {
+          const at = g.attributes[a];
+          if (at) arr.push(...at.array);
+          else { const n = g.attributes.position.count * size; for (let i = 0; i < n; i++) arr.push(a === 'color' ? 1 : 0); }
+        });
+        out.setAttribute(a, new THREE.Float32BufferAttribute(arr, size));
+      });
+      out.computeBoundingSphere();
+      const m = new THREE.Mesh(out, mat); m.castShadow = m.receiveShadow = true;
+      group.add(m);
+    });
+  }
+  mergeStatic(monument);
+  mergeStatic(futureGroup);
+
+  const VIEWS = {
+    overview: () => ({ pos: polar(92, AXIS_PHI + 0.95).add(V3(0, 46, 0)), target: V3(0, 1, 0) }),
+    haul: () => stations.haul.view(),
+    shape: () => stations.shape.view(),
+    raise: () => stations.raise.view(),
+    crib: () => stations.crib.view(),
+    earth: () => stations.earth.view(),
+    ramp: () => stations.ramp.view(),
+    sky: () => ({ pos: V3(-AX * 2.5, 1.7, -AZ * 2.5), target: V3(AX * 80, 3, AZ * 80), sun: 0.014 }),
+    camp: () => stations.camp.view(),
+  };
+  function goTo(id) {
+    const v = VIEWS[id] && VIEWS[id]();
+    if (!v) return;
+    current = id;
+    if (mode === 'walk') setMode('orbit');
+    follow = v.follow || null;
+    if (follow) followLast.copy(follow.position);
+    fly = { p0: camera.position.clone(), t0: controls.target.clone(), p1: v.pos, t1: v.target, k: 0, dur: 2.4 };
+    if (v.sun != null) setSun(v.sun), opts.onSun && opts.onSun(v.sun);
+  }
+
+  function setMode(m) {
+    mode = m;
+    controls.enabled = m === 'orbit';
+    if (m === 'walk') {
+      follow = null; fly = null;
+      // si parte da dove si trova la telecamera, ma a terra
+      const dir = controls.target.clone().sub(camera.position); dir.y = 0;
+      if (dir.lengthSq() < 0.01) dir.set(-AX, 0, -AZ);
+      walk.yaw = Math.atan2(-dir.x, -dir.z); walk.pitch = -0.02;
+      if (camera.position.length() > 120 || camera.position.y - heightAt(camera.position.x, camera.position.z) > 6) {
+        camera.position.set(AX * 62, 0, AZ * 62); walk.yaw = Math.atan2(AX, AZ);
+      }
+      walk.eyeY = heightAt(camera.position.x, camera.position.z) + 1.62;
+    } else {
+      const f = V3(0, 0, -1).applyEuler(new THREE.Euler(walk.pitch, walk.yaw, 0, 'YXZ'));
+      controls.target.copy(camera.position).addScaledVector(f, 8);
+    }
+    opts.onMode && opts.onMode(m);
+  }
+
+  // trascinamento per guardarsi intorno (modalità a piedi) e clic sui segnaposto
+  let down = null;
+  canvas.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, lx: e.clientX, ly: e.clientY }; if (mode === 'walk') canvas.setPointerCapture(e.pointerId); });
+  canvas.addEventListener('pointermove', e => {
+    if (!down || mode !== 'walk') return;
+    walk.yaw -= (e.clientX - down.lx) * 0.0042; walk.pitch = clamp(walk.pitch - (e.clientY - down.ly) * 0.0035, -1.2, 1.2);
+    down.lx = e.clientX; down.ly = e.clientY;
+  });
+  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+  canvas.addEventListener('pointerup', e => {
+    if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) < 6) {
+      const r = canvas.getBoundingClientRect();
+      ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+      ray.setFromCamera(ndc, camera);
+      const hit = ray.intersectObjects(markers.map(m => m.sprite))[0];
+      if (hit) { const id = hit.object.userData.id; goTo(id); opts.onStationClick && opts.onStationClick(id); }
+    }
+    down = null;
+  });
+  const onKey = (e, v) => {
+    if (e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+    walk.keys[e.code] = v;
+    if (v && mode === 'walk' && /Arrow/.test(e.code)) e.preventDefault();
+  };
+  window.addEventListener('keydown', e => onKey(e, true));
+  window.addEventListener('keyup', e => onKey(e, false));
+  window.addEventListener('blur', () => { walk.keys = {}; });
+  controls.addEventListener('start', () => { follow = follow && fly ? follow : follow; fly = null; });
+
+  // ----- segnaposto numerati sopra i cantieri -----
+  const markers = [];
+  const overlay = new THREE.Scene(); // i segnaposto si disegnano sopra, senza effetti
+  [['haul', 1], ['shape', 2], ['raise', 3], ['crib', 4], ['earth', 5], ['ramp', 6], ['camp', 8]].forEach(([id, n]) => {
+    const tex = canvasTex(128, (g, s) => {
+      g.clearRect(0, 0, s, s);
+      g.fillStyle = 'rgba(31,27,22,0.82)'; g.beginPath(); g.arc(s / 2, s / 2, s * 0.42, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = '#e9c27a'; g.lineWidth = 7; g.stroke();
+      g.fillStyle = '#f4ecd8'; g.font = 'bold 64px Georgia, serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(n), s / 2, s / 2 + 3);
+    });
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true, toneMapped: false }));
+    sp.renderOrder = 10; sp.userData.id = id; overlay.add(sp);
+    markers.push({ id, sprite: sp });
+  });
+  let showMarkers = true;
+
+  // ----- modalità "monumento completato" -----
+  let completed = false;
+  function setCompleted(v) {
+    completed = v;
+    futureGroup.visible = v;
+    ['haul', 'shape', 'raise', 'crib', 'earth', 'ramp'].forEach(id => {
+      stationVis[id] = !v;
+      const st = stations[id];
+      st.group.visible = !v;
+      (st.extras || []).forEach(m => { m.visible = !v; });
+      st.setFinal && st.setFinal(v);
+    });
+    markers.forEach(m => { if (m.id !== 'camp') m.sprite.visible = !v && showMarkers; });
+  }
+
+  // ----- ciclo -----
+  const clock = new THREE.Clock();
+  const tmpF = V3(0, 0, 0), tmpR = V3(0, 0, 0);
+  let phaseTimer = 0, lastPhase = '';
+  function frame() {
+    if (disposed) return;
+    requestAnimationFrame(frame);
+    step();
+  }
+  function step(forceDt) {
+    const rawDt = forceDt != null ? forceDt : clock.getDelta(), rdt = Math.min(0.05, rawDt);
+    const dt = paused ? 0 : rdt * speed;
+    simT += dt;
+    const _t0 = performance.now();
+    Object.values(stations).forEach(s => s.update(simT, dt));
+    const _t1 = performance.now();
+    updatePeople(simT, dt);
+    const _t2 = performance.now();
+    updateRopes(); poles.update();
+    PERF.st = PERF.st * 0.9 + (_t1 - _t0) * 0.1; PERF.pe = PERF.pe * 0.9 + (_t2 - _t1) * 0.1;
+    dust.update(dt); smoke.update(dt);
+    clouds.position.x = (simT * 0.6) % 400;
+
+    // segnaposto
+    markers.forEach(m => {
+      const v = VIEWS[m.id]().target; m.sprite.position.set(v.x, v.y + (m.id === 'haul' ? 6 : 6.5), v.z);
+      const d = camera.position.distanceTo(m.sprite.position); const s = clamp(d * 0.045, 1.2, 9);
+      m.sprite.scale.set(s, s, 1); m.sprite.material.opacity = smoothstep(9, 18, d);
+    });
+
+    // telecamera
+    if (fly) {
+      fly.k = Math.min(1, fly.k + rdt / fly.dur); const u = easeIO(fly.k);
+      if (follow) { const d = follow.position.clone().sub(followLast); fly.p1.add(d); fly.t1.add(d); followLast.copy(follow.position); }
+      camera.position.lerpVectors(fly.p0, fly.p1, u);
+      camera.position.y += Math.sin(u * Math.PI) * Math.min(40, fly.p0.distanceTo(fly.p1) * 0.15);
+      controls.target.lerpVectors(fly.t0, fly.t1, u);
+      if (fly.k >= 1) fly = null;
+    } else if (follow && mode === 'orbit') {
+      const d = follow.position.clone().sub(followLast); camera.position.add(d); controls.target.add(d); followLast.copy(follow.position);
+    }
+    if (mode === 'orbit') {
+      controls.update();
+      const gy = heightAt(camera.position.x, camera.position.z) + 0.8;
+      if (camera.position.y < gy) camera.position.y = gy;
+    } else {
+      const k = walk.keys, run = k.ShiftLeft || k.ShiftRight ? 2.4 : 1;
+      let f = (k.KeyW || k.ArrowUp ? 1 : 0) - (k.KeyS || k.ArrowDown ? 1 : 0) + walk.touch.f;
+      let r = (k.KeyD ? 1 : 0) - (k.KeyA ? 1 : 0);
+      const turn = (k.ArrowLeft ? 1 : 0) - (k.ArrowRight ? 1 : 0) - walk.touch.r;
+      walk.yaw += turn * rdt * 1.6;
+      tmpF.set(-Math.sin(walk.yaw), 0, -Math.cos(walk.yaw)); tmpR.set(Math.cos(walk.yaw), 0, -Math.sin(walk.yaw));
+      const sp = 3.2 * run * rdt;
+      camera.position.addScaledVector(tmpF, f * sp).addScaledVector(tmpR, r * sp);
+      for (const c of colliders) {
+        const dx = camera.position.x - c.x, dz = camera.position.z - c.z, d = Math.hypot(dx, dz), m = c.r + 0.35;
+        if (d < m && d > 1e-4) { camera.position.x = c.x + dx / d * m; camera.position.z = c.z + dz / d * m; }
+      }
+      const rad = Math.hypot(camera.position.x, camera.position.z);
+      if (rad > 900) camera.position.multiplyScalar(900 / rad);
+      const target = heightAt(camera.position.x, camera.position.z) + 1.62;
+      walk.eyeY += (target - walk.eyeY) * Math.min(1, rdt * 8);
+      camera.position.y = walk.eyeY + (f || r ? Math.sin(simT * 9) * 0.025 : 0);
+      camera.rotation.set(walk.pitch, walk.yaw, 0, 'YXZ');
+    }
+
+    // ombre centrate su ciò che si guarda
+    const focus = mode === 'orbit' ? controls.target : camera.position;
+    sun.target.position.set(Math.round(focus.x / 4) * 4, 0, Math.round(focus.z / 4) * 4);
+    sun.position.copy(sun.target.position).addScaledVector(sunDir, 220);
+    skyObj.position.copy(camera.position);
+    windU.value = performance.now() / 1000;
+    envTimer += rdt;
+    if (envDirty && envTimer > 0.25) { regenEnv(); envDirty = false; envTimer = 0; }
+    watchFps(rawDt);
+
+    phaseTimer += rdt;
+    if (phaseTimer > 0.25 && opts.onPhase) {
+      phaseTimer = 0;
+      const ph = phaseState[current] || '';
+      if (ph !== lastPhase) { lastPhase = ph; opts.onPhase(ph, current); }
+    }
+    const _t3 = performance.now();
+    if (composer && quality === "high") composer.render(rdt); else renderer.render(scene, camera);
+    PERF.re = PERF.re * 0.9 + (performance.now() - _t3) * 0.1;
+    renderer.autoClear = false; renderer.render(overlay, camera); renderer.autoClear = true;
+  }
+  let disposed = false;
+
+  // sposta il centro dell'inquadratura a sinistra quando a destra c'è il pannello
+  function applyOffset() {
+    const off = !opts.embedded && VW > 760 ? Math.min(200, VW * 0.14) : 0;
+    if (off) camera.setViewOffset(VW, VH, off, 0, VW, VH); else camera.clearViewOffset();
+    camera.aspect = VW / VH; camera.updateProjectionMatrix();
+  }
+  applyOffset();
+
+  // ----- post-produzione: occlusione ambientale (ombre di contatto tra pietre, persone e terreno) -----
+  let composer = null, gtao = null, quality = opts.quality || (isMobile ? "low" : "high"), autoDropped = false;
+  if (AD.EffectComposer && AD.RenderPass && AD.GTAOPass && AD.OutputPass) {
+    try {
+      const rt = new THREE.WebGLRenderTarget(VW, VH, { type: THREE.HalfFloatType, samples: 4 });
+      composer = new AD.EffectComposer(renderer, rt);
+      composer.addPass(new AD.RenderPass(scene, camera));
+      gtao = new AD.GTAOPass(scene, camera, VW, VH);
+      gtao.output = AD.GTAOPass.OUTPUT.Default;
+      gtao.updateGtaoMaterial({ radius: 1.1, distanceExponent: 1.5, thickness: 2.0, scale: 1.0, samples: 12, distanceFallOff: 1.0 });
+      gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, rings: 2, samples: 16 });
+      gtao.blendIntensity = 0.9;
+      // nuvole, cielo e particelle non devono produrre ombre di contatto
+      gtao.overrideVisibility = function () {
+        const cache = this._visibilityCache;
+        this.scene.traverse(o => { cache.set(o, o.visible); if (o.isPoints || o.isLine || o.isSprite || o === skyObj) o.visible = false; });
+      };
+      composer.addPass(gtao);
+      composer.addPass(new AD.OutputPass());
+      composer.setPixelRatio(renderer.getPixelRatio()); composer.setSize(VW, VH);
+    } catch (e) { composer = null; console.warn("Occlusione ambientale non disponibile", e); }
+  }
+  function applyQuality(q, auto) {
+    quality = q;
+    const dpr = window.devicePixelRatio || 1;
+    renderer.setPixelRatio(q === "high" ? Math.min(dpr, 1.5) : Math.min(dpr, 1));
+    renderer.setSize(VW, VH, false);
+    if (composer) { composer.setPixelRatio(Math.min(renderer.getPixelRatio(), 1.25)); composer.setSize(VW, VH); }
+    if (grassMesh) grassMesh.count = q === "high" ? grassFull : Math.floor(grassFull * 0.4);
+    const ms = q === "high" ? 4096 : 2048;
+    if (sun.shadow.mapSize.x !== ms) { sun.shadow.mapSize.set(ms, ms); if (sun.shadow.map) { sun.shadow.map.dispose(); sun.shadow.map = null; } }
+    opts.onQuality && opts.onQuality(q, !!auto);
+  }
+  // se il computer fatica, passa da solo alla grafica leggera
+  let fpsAcc = 0, fpsN = 0, slowWins = 0;
+  function watchFps(dt) {
+    if (quality !== "high" || autoDropped || document.visibilityState !== "visible" || dt > 0.5) return;
+    fpsAcc += dt; fpsN++;
+    if (fpsAcc > 2.5) {
+      const avg = fpsAcc / fpsN; fpsAcc = 0; fpsN = 0;
+      slowWins = avg > 1 / 24 ? slowWins + 1 : 0;
+      if (slowWins >= 2) { autoDropped = true; applyQuality("low", true); }
+    }
+  }
+  applyQuality(quality);
+
+  // avvio
+  for (let i = 0; i < 3; i++) Object.values(stations).forEach(s => s.update(0, 0));
+  const ov = VIEWS.overview();
+  camera.position.copy(ov.pos); controls.target.copy(ov.target);
+  if (opts.autoRotate) { controls.autoRotate = true; controls.autoRotateSpeed = 0.35; }
+  frame();
+
+  return {
+    goTo, setMode, setSun, setCompleted,
+    setPaused(v) { paused = v; }, setSpeed(v) { speed = v; },
+    setQuality(q) { autoDropped = true; applyQuality(q); }, get quality() { return quality; },
+    setMarkers(v) { showMarkers = v; markers.forEach(m => { m.sprite.visible = v && (m.id === 'camp' || !completed); }); },
+    walkInput(f, r) { walk.touch.f = f; walk.touch.r = r; },
+    resize(w, h) { VW = w; VH = h; renderer.setSize(w, h, false); if (composer) composer.setSize(w, h); applyOffset(); dust.mat.uniforms.scale.value = h * 0.5; smoke.mat.uniforms.scale.value = h * 0.5; },
+    get mode() { return mode; }, get sun() { return sunS; }, debug: { scene, terrain, camera, controls, renderer, PERF, step, jump(id) { const v = VIEWS[id](); current = id; fly = null; follow = null; camera.position.copy(v.pos); controls.target.copy(v.target); } },
+    dispose() { disposed = true; renderer.dispose(); },
+  };
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const CONTENT = {
+  overview: {
+    n: '·', title: 'Il cantiere del cerchio',
+    lead: 'Siamo intorno al 2500 a.C. Il fossato circolare esiste già da circa cinque secoli: ora le comunità del Neolitico innalzano il grande cerchio di pietre sarsen.',
+    list: ['ul', [
+      'Il fossato con il terrapieno (henge), largo circa 110 m, fu scavato verso il 3000 a.C. con picconi di corno di cervo.',
+      'Il cerchio esterno: 30 piedritti alti circa 4 m fuori terra, uniti in alto da 30 architravi.',
+      'All\'interno, cinque triliti disposti a ferro di cavallo, aperto verso nord-est.',
+      'Tra i due, le bluestones: pietre più piccole portate dalle colline di Preseli, in Galles, a oltre 200 km.',
+      'Tocca i numeri sopra i cantieri, o le tappe qui sotto, per vedere come lavoravano.',
+    ]],
+    nums: [['Piedritto di sarsen', '≈ 25 t'], ['Architrave', '≈ 7 t'], ['Diametro del cerchio', '≈ 33 m'], ['Bluestone', '2–5 t']],
+    fact: '<b>Lo sapevi?</b> Analisi chimiche pubblicate nel 2020 mostrano che quasi tutte le sarsen vengono da West Woods, circa 25 km a nord.',
+  },
+  haul: {
+    n: '1', title: 'Il trasporto',
+    lead: 'Una sarsen di circa 25 tonnellate viaggia su una slitta di legno che scorre su un binario di tronchi.',
+    list: ['ol', [
+      'Si posano travi parallele su traversine e si ungono con grasso animale per ridurre l\'attrito.',
+      'Le squadre tirano funi di fibra di tiglio intrecciata, camminando insieme al ritmo del capo squadra.',
+      'Dietro la slitta alcuni spingono con leve di legno per farla ripartire quando si blocca.',
+      'Il binario rimasto dietro viene smontato e riportato davanti.',
+    ]],
+    nums: [['Distanza da percorrere', '≈ 25 km'], ['Persone per sarsen', '150–200'], ['Persone nella scena', '≈ 80']],
+    fact: '<b>Lo sapevi?</b> In esperimenti moderni circa 10 persone bastavano a trainare 1 tonnellata su binari di legno. Per una sarsen ne servivano quindi più di un centinaio.',
+  },
+  shape: {
+    n: '2', title: 'La lavorazione',
+    lead: 'Prima di essere innalzate, le pietre vengono squadrate e levigate a colpi di mazzuolo.',
+    list: ['ol', [
+      'I mazzuoli sono sassi di sarsen tondeggianti, da pochi chili fino a oltre 20 kg.',
+      'Battendo la superficie si staccano schegge e polvere: la pietra viene spianata poco a poco.',
+      'In cima ai piedritti si ricavano i tenoni, piccole sporgenze arrotondate.',
+      'Sotto gli architravi si scavano le mortase, le cavità in cui entreranno i tenoni.',
+    ]],
+    nums: [['Strumenti', 'mazzuoli di pietra'], ['Facce più rifinite', 'quelle interne']],
+    fact: '<b>Lo sapevi?</b> Gli incastri vengono dalla carpenteria del legno: tenone e mortasa fissano architrave e piedritto, e un incastro a maschio e femmina unisce un architrave all\'altro.',
+  },
+  raise: {
+    n: '3', title: 'Innalzare il piedritto',
+    lead: 'Il momento più delicato: portare in verticale una pietra di 25 tonnellate senza che si spezzi o si rovesci.',
+    list: ['ol', [
+      'Si scava una buca con picconi di corno di cervo e pale fatte con scapole di bue. Un lato è verticale, l\'altro è uno scivolo.',
+      'La parete verticale è foderata di pali di legno: la base della pietra ci striscia contro senza sgretolarla.',
+      'Con leve e funi la pietra avanza finché il baricentro supera il bordo: allora si inclina e scivola nella buca.',
+      'Le squadre tirano le funi, fatte passare sopra un\'incastellatura di legno ad A, e la pietra si raddrizza. Due funi laterali le impediscono di ruotare.',
+      'La buca si riempie di schegge di sarsen, pietre e gesso, battuti con i mazzuoli.',
+    ]],
+    nums: [['Profondità della buca', '1,2–1,8 m'], ['Altezza fuori terra', '≈ 4,1 m']],
+    fact: '<b>Lo sapevi?</b> Gli archeologi hanno trovato le buche dei piedritti: alcune hanno davvero un lato inclinato. L\'incastellatura ad A è invece un\'ipotesi ricostruttiva.',
+  },
+  crib: {
+    n: '4', title: 'L\'architrave sulla catasta',
+    lead: 'Come si porta un blocco di 7 tonnellate in cima a pietre alte 4 metri? Un\'ipotesi convincente è la catasta di tronchi.',
+    list: ['ol', [
+      'L\'architrave poggia su una piattaforma di tronchi incrociati, a strati alterni.',
+      'Con le leve si alza un\'estremità di pochi centimetri e sotto si infila un tronco; poi si fa lo stesso dall\'altra parte.',
+      'Strato dopo strato, architrave e catasta salgono insieme fino a superare i piedritti.',
+      'In cima l\'architrave scivola di lato e viene calato sui tenoni.',
+    ]],
+    nums: [['Architrave', '≈ 3,2 × 1,1 × 0,8 m'], ['Peso', '≈ 7 t'], ['Strati di tronchi', '≈ 19']],
+    fact: '<b>Lo sapevi?</b> Gli architravi del cerchio non sono dritti: sono leggermente curvi per seguire la circonferenza. È un dettaglio unico tra i monumenti preistorici.',
+  },
+  earth: {
+    n: '5', title: 'L\'architrave sul terrapieno',
+    lead: 'Un\'altra ipotesi: seppellire quasi del tutto i piedritti sotto un cumulo di terra e gesso, e usare il cumulo come rampa per far salire l\'architrave.',
+    list: ['ol', [
+      'Con ceste e pale fatte di scapole di bue si ammucchiano terra e gesso intorno ai due piedritti, fin quasi alla cima: restano scoperti solo i tenoni.',
+      'Il cumulo prosegue verso l\'esterno con una rampa in pendenza, coperta di tronchi trasversali perché la slitta scorra meglio.',
+      'L\'architrave sale la rampa su una slitta, spinto con leve da dietro e tirato con funi da davanti, fino alla piattaforma in cima.',
+      'Dalla piattaforma viene fatto scivolare sopra i tenoni e calato al suo posto.',
+      'Infine tutta la terra viene portata via, cesta dopo cesta: l\'architrave resta appoggiato sui piedritti.',
+    ]],
+    nums: [['Altezza del terrapieno', '≈ 4 m'], ['Lunghezza della rampa', '≈ 14 m'], ['Terra da spostare', 'centinaia di m³']],
+    fact: '<b>Lo sapevi?</b> È un metodo semplice ma faticoso: per ogni architrave bisognava ammucchiare e poi togliere una grande quantità di terra. Non se ne sono trovate tracce sicure, quindi resta un\'ipotesi, come la catasta e la rampa. Confronta i tre metodi: quale ti sembra più pratico?',
+  },
+  ramp: {
+    n: '6', title: 'La rampa del Grande Trilite',
+    lead: 'Per il Grande Trilite, alto più di 7 metri, si può immaginare una lunga rampa di terra, gesso e legname costruita accanto ai piedritti.',
+    list: ['ol', [
+      'Si accumula una rampa inclinata, rinforzata ai lati con pali e coperta di tronchi trasversali.',
+      'L\'architrave, su una slitta, sale spinto con leve da dietro e tirato con funi da davanti.',
+      'Dalla cima viene fatto scivolare sopra i due piedritti.',
+    ]],
+    nums: [['Grande Trilite', '≈ 7,3 m fuori terra'], ['Lunghezza della rampa', 'oltre 20 m']],
+    fact: '<b>Lo sapevi?</b> Di rampe così grandi non sono state trovate tracce sicure. Per questo molti archeologi preferiscono l\'ipotesi della catasta, ma forse si usarono entrambe.',
+  },
+  sky: {
+    n: '7', title: 'Il cerchio e il sole',
+    lead: 'Stonehenge è orientato: il suo asse punta al punto dell\'orizzonte dove sorge il sole nel solstizio d\'estate.',
+    list: ['ul', [
+      'Dal centro, guardando lungo l\'Avenue verso nord-est, il sole del 21 giugno sorge vicino alla Heel Stone.',
+      'Nella direzione opposta, a sud-ovest, tramonta il sole del solstizio d\'inverno, dietro il Grande Trilite.',
+      'Sposta il cursore «Sole» per seguirlo durante il giorno del solstizio.',
+    ]],
+    nums: [['Alba del solstizio', '≈ 50° da nord'], ['Heel Stone', '≈ 77 m dal centro']],
+    fact: '<b>Lo sapevi?</b> A Durrington Walls, il villaggio vicino, i maiali venivano macellati soprattutto in pieno inverno: probabilmente per grandi banchetti al solstizio.',
+  },
+  camp: {
+    n: '8', title: 'Il villaggio dei costruttori',
+    lead: 'Chi costruiva Stonehenge viveva per periodi in villaggi come Durrington Walls, a circa 3 km. Qui il villaggio è stato avvicinato per comodità.',
+    list: ['ul', [
+      'Case quadrate di pali e incannucciato intonacato d\'argilla, tetto di paglia e focolare al centro.',
+      'Allevatori e agricoltori: bovini, maiali, cereali. Vesti di lana e di pelle.',
+      'Attrezzi di pietra, osso, legno e corno: il metallo arriva in Britannia proprio in questi secoli.',
+    ]],
+    nums: [['Ore di lavoro stimate', 'milioni'], ['Generazioni coinvolte', 'diverse']],
+    fact: '<b>Lo sapevi?</b> Costruire Stonehenge non fu opera di schiavi: era un progetto comune di molte comunità, che si riunivano per lavorare e festeggiare.',
+  },
+};
+const ORDER = ['overview', 'haul', 'shape', 'raise', 'crib', 'earth', 'ramp', 'sky', 'camp'];
+const SHORT = { overview: 'Panoramica', haul: 'Trasporto', shape: 'Lavorazione', raise: 'Piedritto', crib: 'Catasta', earth: 'Terrapieno', ramp: 'Rampa', sky: 'Il sole', camp: 'Villaggio' };
+
+const $ = id => document.getElementById(id);
+let current = 'overview', api = null;
+
+function render(id) {
+  current = id;
+  const c = CONTENT[id];
+  $('infoNum').textContent = c.n;
+  $('infoTitle').textContent = c.title;
+  $('infoLead').textContent = c.lead;
+  const [tag, items] = c.list;
+  const L = document.createElement(tag);
+  items.forEach(t => { const li = document.createElement('li'); li.textContent = t; L.appendChild(li); });
+  $('infoList').replaceChildren(L);
+  $('infoNums').replaceChildren(...c.nums.flatMap(([k, v]) => { const dt = document.createElement('dt'); dt.textContent = k; const dd = document.createElement('dd'); dd.textContent = v; return [dt, dd]; }));
+  $('infoFact').innerHTML = c.fact;
+  $('phase').hidden = true;
+  document.querySelectorAll('.stop').forEach(b => b.setAttribute('aria-current', String(b.dataset.id === id)));
+  const btn = document.querySelector('.stop[data-id="' + id + '"]');
+  if (btn) btn.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+}
+
+ORDER.forEach(id => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'stop'; b.dataset.id = id;
+  b.innerHTML = '<span class="n">' + CONTENT[id].n + '</span>' + SHORT[id];
+  b.addEventListener('click', () => { render(id); api && api.goTo(id); });
+  $('stops').appendChild(b);
+});
+render('overview');
+
+$('collapse').addEventListener('click', () => {
+  const c = $('info').classList.toggle('collapsed');
+  $('collapse').textContent = c ? 'Apri' : 'Riduci';
+  $('collapse').setAttribute('aria-expanded', String(!c));
+});
+
+function sunName(v) {
+  if (v < 0.04) return 'alba';
+  if (v < 0.3) return 'mattina';
+  if (v < 0.42) return 'tarda mattina';
+  if (v < 0.58) return 'mezzogiorno';
+  if (v < 0.85) return 'pomeriggio';
+  if (v < 0.96) return 'sera';
+  return 'tramonto';
+}
+async function loadAddons() {
+  const imp = async (u, n) => { try { return (await import(u))[n]; } catch (e) { console.warn("Modulo non caricato:", u, e); return null; } };
+  const [Sky, EffectComposer, RenderPass, GTAOPass, OutputPass] = await Promise.all([
+    imp("three/addons/objects/Sky.js", "Sky"),
+    imp("three/addons/postprocessing/EffectComposer.js", "EffectComposer"),
+    imp("three/addons/postprocessing/RenderPass.js", "RenderPass"),
+    imp("three/addons/postprocessing/GTAOPass.js", "GTAOPass"),
+    imp("three/addons/postprocessing/OutputPass.js", "OutputPass"),
+  ]);
+  return { Sky, EffectComposer, RenderPass, GTAOPass, OutputPass };
+}
+function setQualityUI(q, auto) {
+  const b = $("qualityBtn");
+  b.setAttribute("aria-pressed", String(q === "high"));
+  b.textContent = q === "high" ? "Grafica: alta" : auto ? "Grafica: leggera (auto)" : "Grafica: leggera";
+}
+async function boot() {
+  const canvas = $("scene");
+  const addons = await loadAddons();
+  try {
+    api = buildStonehenge(THREE, OrbitControls, canvas, {
+      addons, onQuality: setQualityUI,
+      width: window.innerWidth, height: window.innerHeight,
+      onPhase(text, id) { if (id !== current) return; $('phase').hidden = !text; $('phaseText').textContent = text; },
+      onStationClick(id) { render(id); },
+      onMode(m) {
+        $('walkBtn').setAttribute('aria-pressed', String(m === 'walk'));
+        $('walkBtn').textContent = m === 'walk' ? 'Torna alla vista libera' : 'Esplora a piedi';
+        $('walkhelp').hidden = m !== 'walk';
+      },
+      onSun(v) { $('sun').value = Math.round(v * 1000); $('sunLabel').textContent = sunName(v); },
+    });
+  } catch (err) {
+    $('loader').innerHTML = '<div><p>La scena 3D non si è potuta avviare.</p><small>Serve un browser con WebGL attivo (Chrome, Edge, Firefox o Safari aggiornati). Dettaglio: ' + (err && err.message ? err.message : err) + '</small></div>';
+    return;
+  }
+  $("loader").hidden = true; window.__api = api;
+  window.addEventListener('resize', () => api.resize(window.innerWidth, window.innerHeight));
+  $('walkBtn').addEventListener('click', () => api.setMode(api.mode === 'walk' ? 'orbit' : 'walk'));
+  $('doneBtn').addEventListener('click', e => { const v = e.currentTarget.getAttribute('aria-pressed') !== 'true'; e.currentTarget.setAttribute('aria-pressed', String(v)); api.setCompleted(v); });
+  $('pauseBtn').addEventListener('click', e => { const v = e.currentTarget.getAttribute('aria-pressed') !== 'true'; e.currentTarget.setAttribute('aria-pressed', String(v)); e.currentTarget.textContent = v ? 'Riprendi' : 'Pausa'; api.setPaused(v); });
+  $("qualityBtn").addEventListener("click", () => api.setQuality(api.quality === "high" ? "low" : "high"));
+  $("speed").addEventListener('change', e => api.setSpeed(parseFloat(e.target.value)));
+  $('sun').addEventListener('input', e => { const v = e.target.value / 1000; api.setSun(v); $('sunLabel').textContent = sunName(v); });
+  document.querySelectorAll('#pad button').forEach(b => {
+    const on = () => api.walkInput(+(b.dataset.f || 0), +(b.dataset.r || 0));
+    const off = () => api.walkInput(0, 0);
+    b.addEventListener('pointerdown', e => { e.preventDefault(); on(); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(t => b.addEventListener(t, off));
+  });
+}
+setTimeout(boot, 60);
+
+// il pannello su telefono sta sopra la barra in basso, qualunque sia la sua altezza
+const dockRO = new ResizeObserver(() => document.documentElement.style.setProperty('--dock-h', $('dock').offsetHeight + 'px'));
+dockRO.observe($('dock'));
+if (window.innerWidth < 760) { $('info').classList.add('collapsed'); $('collapse').textContent = 'Apri'; $('collapse').setAttribute('aria-expanded', 'false'); }
+</script>
+</html>
